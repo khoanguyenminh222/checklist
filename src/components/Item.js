@@ -10,7 +10,7 @@ const Item = () => {
                 className="m-2"
                 value={isChecked}
                 onValueChange={setChecked}
-                color={isChecked ? '#4630EB' : undefined}
+                color={isChecked ? 'blue' : undefined}
             />
             <Text className="text-sm">Custom colored checkbox</Text>
         </View>

@@ -1,8 +1,9 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons'
+import { RootSiblingParent } from 'react-native-root-siblings';
 import { UserProvider } from './src/UserProvider';
 
 import Login from './src/screens/Login';
@@ -18,17 +19,17 @@ const TabNavigator = () => {
       headerShown: false,
     }}>
       <Tab.Screen name='CheckList' component={CheckList} options={{
-          title: "CheckList",
-          tabBarIcon:({color,size})=>{
-              return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
-          }
-      }}/>
+        title: "CheckList",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
       <Tab.Screen name='WorkList' component={WorkList} options={{
-          title: "WorkList",
-          tabBarIcon:({color,size})=>{
-              return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
-          }
-      }}/>
+        title: "WorkList",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
     </Tab.Navigator>
   )
 }
@@ -36,15 +37,15 @@ const TabNavigator = () => {
 const StackNavigator = () => {
   return (
     <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-        }}
-      >
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="CheckList" component={CheckList} />
-        <Stack.Screen name="WorkList" component={WorkList} />
-        <Stack.Screen name="Main" component={TabNavigator} />
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+      }}
+    >
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="CheckList" component={CheckList} />
+      <Stack.Screen name="WorkList" component={WorkList} />
+      <Stack.Screen name="Main" component={TabNavigator} />
     </Stack.Navigator>
   )
 }
@@ -52,10 +53,12 @@ const StackNavigator = () => {
 export default function App() {
   const isLoggedIn = false;
   return (
-    <UserProvider>
-    <NavigationContainer>
-      <StackNavigator />
-    </NavigationContainer>
-    </UserProvider>
+    <RootSiblingParent>
+      <UserProvider>
+        <NavigationContainer>
+          <StackNavigator />
+        </NavigationContainer>
+      </UserProvider>
+    </RootSiblingParent>
   );
 }

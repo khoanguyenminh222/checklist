@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, TextInput, StyleSheet, ImageBackground } from 'react-native'
+import { View, Text, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, TextInput } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { useUser } from '../UserProvider';
@@ -83,7 +83,7 @@ const Profile = ({ navigation }) => {
       >
         <View className="p-5 rounded-lg w-11/12 mb-5 bg-gray-100">
           <View className="items-center">
-            <Text className="text-xl font-bold mb-3">Username: {user.username}</Text>
+            <Text className="text-xl font-bold mb-3">{user.username}</Text>
             <Text className="text-base mb-1">Họ tên: {user.fullname}</Text>
             <Text className="text-base">Huyện: {user.district}</Text>
           </View>

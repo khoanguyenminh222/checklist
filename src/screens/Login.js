@@ -11,7 +11,7 @@ import ToastMesssage from '../components/ToastMessage';
 
 const Login = ({ navigation }) => {
   const { updateUser } = useUser();
-  const [username, setUsername] = useState('khoa');
+  const [username, setUsername] = useState('khoavnpt27@gmail.com');
   const [password, setPassword] = useState('khoa');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [isChecked, setChecked] = useState(false);

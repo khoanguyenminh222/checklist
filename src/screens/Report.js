@@ -1,73 +1,96 @@
-import { View, Text, StyleSheet  } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, RefreshControl, TextInput } from 'react-native'
+import React, { useCallback, useState, useEffect } from 'react'
+import axios from 'axios';
+import Header from '../components/Header';
+import { useUser } from '../UserProvider';
+import { domain, listSubmitRoute } from '../api/BaseURL';
 
-const Report = () => {
-  const reportData = {
-    customerName: "Minh Khoa",
-    district: "Thành phố Vũng Tàu",
-    phoneNumber: "0969606095",
-    address: "55A Ngô Đức Kế",
-    checkedItems: [
-      "6627356d9548261c65f4fd42",
-      "662735999548261c65f4fd46"
-    ],
-    date: "2024-04-24T08:49:32.588Z",
-    note: ""
-  };
+const Report = ({ navigation }) => {
+  const { isLogin } = useUser();
+  const [refreshing, setRefreshing] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [checkList, setCheckList] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState('');
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    navigation.reset({
+      index: 0, // Chỉ định màn hình đầu tiên trong danh sách
+      routes: [{ name: 'Report' }],
+    });
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập khi màn hình được tạo
+    if (!isLogin()) {
+      navigation.replace('Login'); // Nếu chưa đăng nhập, chuyển hướng đến màn hình đăng nhập
+    }
+  }, [navigation]);
+
+  useEffect(() => {
+    const fetchListSubmit = async () => {
+      const response = await axios.get(`${domain}${listSubmitRoute}`); // lấy ra danh sánh listSubmit
+      setReports(response.data);
+    }
+    fetchListSubmit();
+  }, [])
+
+  const handelSearch = async (text) => {
+    setSearch(text)
+    try {
+      const response = await axios.get(`${domain}${listSubmitRoute}/search?query=${text}`);
+      setReports(response.data);
+      console.log(response.data)
+    } catch (error) {
+      console.error('Error fetching list submissions by query:', error);
+    }
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Báo cáo</Text>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Tên khách hàng:</Text>
-        <Text style={styles.value}>{reportData.customerName}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Quận/Huyện:</Text>
-        <Text style={styles.value}>{reportData.district}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Số điện thoại:</Text>
-        <Text style={styles.value}>{reportData.phoneNumber}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Địa chỉ:</Text>
-        <Text style={styles.value}>{reportData.address}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Các mục đã kiểm tra:</Text>
-        {reportData.checkedItems.map((item, index) => (
-          <Text key={index} style={styles.value}>{item}</Text>
+    <SafeAreaView className="flex-1 bg-white">
+      <Header screenName="Report" navigation={navigation} />
+      <TextInput className="h-14 border-b border-gray-200 mb-5 text-xl px-2"
+        placeholder='Tìm kiếm'
+        value={search}
+        onChangeText={(text) => handelSearch(text)}
+      />
+      <ScrollView
+        contentContainerStyle={{ alignItems: 'center', paddingTop: '20' }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {reports.map((report, index) => (
+          <View key={index} className="px-5 pb-5 mb-5 bg-gray-100 rounded-2xl w-11/12">
+            <Text className="text-lg font-bold mt-5">Nhân viên:</Text>
+            <Text className="text-base mt-1">
+              {report.userId.fullname} - {report.userId.username}
+            </Text>
+            <Text className="text-lg font-bold mt-5">Tên Khách Hàng:</Text>
+            <Text className="text-base mt-1">{report.customerName}</Text>
+            <Text className="text-lg font-bold mt-5">Quận/Huyện:</Text>
+            <Text className="text-base mt-1">{report.district}</Text>
+            <Text className="text-lg font-bold mt-5">Số Điện Thoại:</Text>
+            <Text className="text-base mt-1">{report.phoneNumber}</Text>
+            <Text className="text-lg font-bold mt-5">Địa Chỉ:</Text>
+            <Text className="text-base mt-1">{report.address}</Text>
+            <Text className="text-lg font-bold mt-5">Ngày Kiểm Tra:</Text>
+            <Text className="text-base mt-1">{new Date(report.date).toLocaleDateString()}</Text>
+            <Text className="text-lg font-bold mt-5">Ghi Chú:</Text>
+            <Text className="text-base mt-1">{report.note || "Không có ghi chú"}</Text>
+            <Text className="text-lg font-bold mt-5">Các Mục Đã Kiểm Tra:</Text>
+            <View className="text-base ml-2">
+              {report.checkedItems.map((item, index) => (
+                <Text className="text-base mb-2" key={index}>- {item.name}</Text> // Thay `item.name` bằng trường thông tin bạn muốn hiển thị về mục kiểm tra
+              ))}
+            </View>
+          </View>
         ))}
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Ngày tạo:</Text>
-        <Text style={styles.value}>{reportData.date}</Text>
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Ghi chú:</Text>
-        <Text style={styles.value}>{reportData.note}</Text>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   )
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  infoContainer: {
-    marginBottom: 10,
-  },
-  label: {
-    fontWeight: 'bold',
-  },
-  value: {
-    marginLeft: 10,
-  },
-});
+
 export default Report

@@ -51,7 +51,7 @@ const WorkList = ({ navigation }) => {
                     onPress: async () => {
                         try {
                             // Gửi request DELETE để xoá công việc
-                            const response = await axios.delete(`${domain}${checklistRoute}/${id}`);
+                            const response = await axios.put(`${domain}${checklistRoute}/delete/${id}`,{status:1});
                             if (response.status >= 200 && response.status < 300) {
                                 // Cập nhật danh sách công việc sau khi xoá thành công
                                 const updatedWorkList = workList.filter(work => work._id !== id);
@@ -122,6 +122,8 @@ const WorkList = ({ navigation }) => {
                 
             }
         } catch (error) {
+            setMessage("Error saving work");
+            setToastKey(prevKey => prevKey + 1);
             console.error('Error saving work:', error);
         }
         // Đóng modal sau khi lưu công việc
@@ -151,7 +153,8 @@ const WorkList = ({ navigation }) => {
                 >
             <View className="flex p-2">
                 {workList && workList.map((item, index) => (
-                    <TouchableOpacity key={item._id} onPress={() => handleEditWork(item._id)}>
+                    item.status==0 && 
+                    (<TouchableOpacity key={item._id} onPress={() => handleEditWork(item._id)}>
                         <View className="flex flex-row justify-between items-center px-4 py-2 border-b-2 border-b-white mb-2">
                             <Text className="flex-1 mr-2 text-lg">{index + 1}. {item.name}</Text>
                             <TouchableOpacity className="mr-2" onPress={() => handleEditWork(item._id)}>
@@ -161,7 +164,7 @@ const WorkList = ({ navigation }) => {
                                 <Ionicons name="trash-outline" size={24} color="red"></Ionicons>
                             </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity>)
                 ))}
                 <EditWorkModal
                     visible={modalVisible}

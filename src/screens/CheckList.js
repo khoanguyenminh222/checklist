@@ -11,7 +11,7 @@ import ToastMesssage from '../components/ToastMessage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CheckList = ({ navigation }) => {
-    const { isLogin } = useUser();
+    const { user, isLogin } = useUser();
     const [name, setName] = useState('');
     const [district, setDistrict] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -77,14 +77,14 @@ const CheckList = ({ navigation }) => {
     }, [navigation]);
 
     const data = [
-        { label: 'Item 1', value: '1' },
-        { label: 'Item 2', value: '2' },
-        { label: 'Item 3', value: '3' },
-        { label: 'Item 4', value: '4' },
-        { label: 'Item 5', value: '5' },
-        { label: 'Item 6', value: '6' },
-        { label: 'Item 7', value: '7' },
-        { label: 'Item 8', value: '8' },
+        { label: 'Thành phố Vũng Tàu', value: 'Thành phố Vũng Tàu' },
+        { label: 'Bà Rịa', value: 'Bà Rịa' },
+        { label: 'Châu Đức', value: 'Châu Đức' },
+        { label: 'Xuyên Mộc', value: 'Xuyên Mộc' },
+        { label: 'Tân Thành', value: 'Tân Thành' },
+        { label: 'Long Điền', value: 'Long Điền' },
+        { label: 'Đất Đỏ', value: 'Đất Đỏ' },
+        { label: 'Côn Đảo', value: 'Côn Đảo' },
     ];
     const handleDistrictChange = (value) => {
         setDistrict(value);
@@ -139,7 +139,9 @@ const CheckList = ({ navigation }) => {
                 vnptAccount: vnptAccount,
                 checkedItems: checkedItems, // Chỉ lấy _id của các item được check
                 date: date,
-                note: note
+                note: note,
+                userId: user._id,
+                username: user.username
             };
             const response = await axios.post(`${domain}${listSubmitRoute}`, formData);
             if (response.status >= 200 && response.status < 300) {
@@ -148,6 +150,7 @@ const CheckList = ({ navigation }) => {
                 console.error('Submission failed with status:', response.status);
             }
         } catch (error) {
+            setMessage("Error Submitting")
             console.log(error)
         }
         // Thực hiện các thao tác khác như lưu dữ liệu vào cơ sở dữ liệu, gửi dữ liệu đến máy chủ, vv.
@@ -210,7 +213,8 @@ const CheckList = ({ navigation }) => {
                         <Text className="text-base text-center font-bold text-blue-500 mb-4">Nội dung công việc đến nhà khách hàng</Text>
                         {/* Đây là chỗ fetch item */}
                         {workList.map((work, index) =>
-                            <Item key={work._id} work={work} index={index} onCheckboxChange={handleCheckboxChange} district={district} />
+                            work.status == 0 && 
+                            (<Item key={work._id} work={work} index={index} onCheckboxChange={handleCheckboxChange} district={district} />)
                         )}
                         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                             <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{date.toLocaleDateString()}</Text>

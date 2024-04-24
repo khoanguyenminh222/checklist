@@ -19,7 +19,7 @@ const Header = ({screenName, navigation, goback}) => {
           <Text className="text-2xl font-bold">{screenName}</Text>
         </View>
         <View className="flex flex-row items-center">
-            {user && <Text className="text-sm mr-2">Xin chào: {user.username}</Text> }
+            {user && <Text className="text-sm mr-2">Xin chào: {user.fullname}</Text> }
             <Ionicons name="log-out-outline" size={28} onPress={handleLogout}></Ionicons>
         </View>
     </View>

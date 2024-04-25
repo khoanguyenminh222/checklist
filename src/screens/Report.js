@@ -1,21 +1,15 @@
-import { View, Text, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, Platform, Alert  } from 'react-native'
+import { View, Text, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, Platform, Alert, Button } from 'react-native'
 import React, { useCallback, useState, useEffect } from 'react'
 import axios from 'axios';
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
-import { domain, listSubmitRoute } from '../api/BaseURL';
+import { domain, listSubmitRoute, userRoute } from '../api/BaseURL';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ToastMesssage from '../components/ToastMessage';
 import * as FileSystem from 'expo-file-system';
 import { shareAsync } from 'expo-sharing';
 import * as Notifications from 'expo-notifications';
-
-Notifications.setNotificationChannelAsync('your_channel_id', {
-  name: 'Your Channel Name',
-  importance: Notifications.AndroidImportance.DEFAULT,
-  vibrationPattern: [0, 250, 250, 250],
-  lightColor: '#FF231F7C',
-}).then(created => console.log(`Channel created: ${created}`));
+import * as DocumentPicker from 'expo-document-picker';
 
 const Report = ({ navigation }) => {
   const { isLogin } = useUser();
@@ -26,6 +20,7 @@ const Report = ({ navigation }) => {
   const [showDatePickerEnd, setShowDatePickerEnd] = useState(false)
   const [message, setMessage] = useState('')
   const [toastKey, setToastKey] = useState(0);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -56,6 +51,28 @@ const Report = ({ navigation }) => {
     setShowDatePickerEnd(false);
     setDateEnd(currentDate);
   };
+
+  useEffect(() => {
+    // Tạo kênh thông báo
+    const createNotificationChannel = async () => {
+      const channelId = 'your_channel_id'; // Đặt ID kênh tại đây
+      const channelName = 'Your Channel Name'; // Tên của kênh
+      const channelDescription = 'A channel to categorize your notifications'; // Mô tả của kênh
+      const importance = Notifications.AndroidImportance.DEFAULT;
+      const vibrationPattern = [0, 250, 250, 250];
+      const lightColor = '#FF231F7C';
+
+      await Notifications.setNotificationChannelAsync(channelId, {
+        name: channelName,
+        importance,
+        vibrationPattern,
+        lightColor,
+      });
+      console.log(`Channel created: ${channelId}`);
+    };
+
+    createNotificationChannel();
+  }, []);
 
   const handleExport = async () => {
     try {
@@ -92,7 +109,7 @@ const Report = ({ navigation }) => {
     } catch (error) {
       console.log(error)
       setMessage("Xuất file thất bại");
-      setToastKey(prevKey => prevKey + 1); 
+      setToastKey(prevKey => prevKey + 1);
     }
   }
 
@@ -114,14 +131,60 @@ const Report = ({ navigation }) => {
     }
   };
 
+  const handleFilePick = async () => {
+    try {
+      const file = await DocumentPicker.getDocumentAsync({
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Chỉ chấp nhận các tệp xlsx
+        copyToCacheDirectory: false, // Không sao chép tệp vào thư mục cache
+      });
+      if (!file.cancelled) {
+        setSelectedFile(file);
+      } else {
+        Alert.alert('Thông báo', 'Người dùng không chọn tệp nào.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi chọn tệp:', error);
+    }
+  };
+
+  const handleFileSubmit = async () => {
+    if (selectedFile) {
+      try {
+        const formData = new FormData();
+        console.log(selectedFile)
+        formData.append('excelFile', {
+          uri: selectedFile.assets[0].uri,
+          name: selectedFile.assets[0].name,
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        //Gửi tệp đã chọn đến server hoặc thực hiện xử lý khác
+        const response = await axios.post(`${domain}${userRoute}/import`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        if (response.status >= 200 && response.status < 300) {
+          setMessage(response.data.message);
+          setToastKey(prevKey => prevKey + 1);
+        }
+        console.log('Tệp đã chọn:', selectedFile);
+      } catch (error) {
+        console.error('Error submitting file:', error);
+      }
+    } else {
+      Alert.alert('Thông báo', 'Vui lòng chọn một tệp trước khi gửi.');
+    }
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-200">
       <Header screenName="Report" navigation={navigation} />
       <ScrollView
         contentContainerStyle={{ alignItems: 'center', paddingTop: '20' }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <View className="w-full px-5">
+        <View className="w-11/12 bg-white px-5 py-5 rounded-2xl mb-3">
+          <Text className="text-2xl font-bold text-center mb-5">Xuất báo cáo</Text>
           <Text className="text-lg font-semibold mb-2">Ngày bắt đầu</Text>
           <TouchableOpacity onPress={() => setShowDatePickerStart(true)}>
             <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{dateStart.toLocaleDateString()}</Text>
@@ -147,7 +210,23 @@ const Report = ({ navigation }) => {
           <TouchableOpacity className="mt-5 bg-blue-500 p-3 rounded-md items-center" onPress={handleExport}>
             <Text className="text-white text-lg font-semibold">Xuất báo cáo</Text>
           </TouchableOpacity>
-          {message && <ToastMesssage message={message} key={toastKey} time={10000}/>}
+          {message && <ToastMesssage message={message} key={toastKey} time={10000} />}
+        </View>
+        <View className="w-11/12 bg-white px-5 py-5 rounded-2xl mb-3">
+          <Text className="text-2xl font-bold text-center mb-5">Nhập người dùng</Text>
+          <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFilePick}>
+            <Text className="text-white text-lg font-semibold">Chọn tệp .xlsx</Text>
+          </TouchableOpacity>
+          {selectedFile && (
+            <View className="mt-5">
+              <Text>Tên tệp: {selectedFile.assets[0].name}</Text>
+              <Text>Kích thước: {selectedFile.assets[0].size} bytes</Text>
+              <Text>Loại: Spreadsheet</Text>
+            </View>
+          )}
+          <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFileSubmit} disabled={!selectedFile}>
+            <Text className="text-white text-lg font-semibold">Gửi</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

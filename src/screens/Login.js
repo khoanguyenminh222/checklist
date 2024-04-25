@@ -28,10 +28,10 @@ const Login = ({ navigation }) => {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setChecked(true); // Đánh dấu checkbox "Remember"
-          if(!password && !username){
+          if (!password && !username) {
             handleLogin(); // Tự động đăng nhập
           }
-          
+
         }
       } catch (error) {
         console.error('Lỗi khi lấy thông tin đăng nhập từ AsyncStorage:', error);
@@ -44,16 +44,16 @@ const Login = ({ navigation }) => {
   const handleLogin = async () => {
     // Thực hiện xác thực đăng nhập, sau đó lưu thông tin người dùng vào Context
     try {
-      if(!username){
+      if (!username) {
         setMessage('Vui lòng điền username');
         setToastKey(prevKey => prevKey + 1);
       }
-      if(!password){
+      if (!password) {
         setMessage('Vui lòng điền password');
         setToastKey(prevKey => prevKey + 1);
       }
       const userData = { username, password }; // Thông tin người dùng
-      const response = await axios.post(`${domain}${userRoute}/login`,userData);
+      const response = await axios.post(`${domain}${userRoute}/login`, userData);
       if (response.status >= 200 && response.status < 300) {
         let user = response.data.user;
         updateUser(user);
@@ -66,9 +66,9 @@ const Login = ({ navigation }) => {
           await AsyncStorage.setItem('password', password);
         }
 
-        if(user.role==='admin'){
+        if (user.role === 'admin') {
           navigation.navigate('MainAdmin'); // Chuyển đến màn hình Home sau khi đăng nhập thành công
-        }else{
+        } else {
           navigation.navigate('MainUser');
         }
       } else {
@@ -76,12 +76,11 @@ const Login = ({ navigation }) => {
         setMessage('Sai username hoặc password');
         setToastKey(prevKey => prevKey + 1);
       }
-
     } catch (error) {
-      if(error.response.status==401){
+      if (error.response.status == 401) {
         setMessage('Sai username hoặc password');
-        setToastKey(prevKey => prevKey + 1); 
-      }else{
+        setToastKey(prevKey => prevKey + 1);
+      } else {
         console.log(error)
       }
     }
@@ -111,7 +110,7 @@ const Login = ({ navigation }) => {
           <Text className="text-sm">Remember</Text>
         </View>
         <Button title="Đăng nhập" onPress={handleLogin} />
-        {message && <ToastMesssage message={message} key={toastKey} time={1500}/>} 
+        {message && <ToastMesssage message={message} key={toastKey} time={1500} />}
       </View>
     </SafeAreaView>
   );

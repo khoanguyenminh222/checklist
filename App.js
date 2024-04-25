@@ -11,6 +11,7 @@ import CheckList from './src/screens/CheckList';
 import WorkList from './src/screens/WorkList';
 import Profile from './src/screens/Profile';
 import Report from './src/screens/Report';
+import History from './src/screens/History';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,6 +35,12 @@ const TabNavigatorAdmin = () => {
       }} />
       <Tab.Screen name='Profile' component={Profile} options={{
         title: "Profile",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
+      <Tab.Screen name='History' component={History} options={{
+        title: "History",
         tabBarIcon: ({ color, size }) => {
           return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
         }

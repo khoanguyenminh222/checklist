@@ -12,7 +12,7 @@ import ToastMesssage from '../components/ToastMessage';
 const Login = ({ navigation }) => {
   const { updateUser } = useUser();
   const [username, setUsername] = useState('khoavnpt27@gmail.com');
-  const [password, setPassword] = useState('khoa');
+  const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [isChecked, setChecked] = useState(false);
   const [message, setMessage] = useState('');
@@ -28,7 +28,10 @@ const Login = ({ navigation }) => {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setChecked(true); // Đánh dấu checkbox "Remember"
-          handleLogin(); // Tự động đăng nhập
+          if(!password && !username){
+            handleLogin(); // Tự động đăng nhập
+          }
+          
         }
       } catch (error) {
         console.error('Lỗi khi lấy thông tin đăng nhập từ AsyncStorage:', error);
@@ -66,7 +69,7 @@ const Login = ({ navigation }) => {
         if(user.role==='admin'){
           navigation.navigate('MainAdmin'); // Chuyển đến màn hình Home sau khi đăng nhập thành công
         }else{
-          navigation.navigate('CheckList');
+          navigation.navigate('MainUser');
         }
       } else {
         console.error('Submission failed with status:', response.status);
@@ -108,7 +111,7 @@ const Login = ({ navigation }) => {
           <Text className="text-sm">Remember</Text>
         </View>
         <Button title="Đăng nhập" onPress={handleLogin} />
-        {message && <ToastMesssage message={message} key={toastKey}/>} 
+        {message && <ToastMesssage message={message} key={toastKey} time={1500}/>} 
       </View>
     </SafeAreaView>
   );

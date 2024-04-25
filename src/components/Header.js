@@ -13,7 +13,7 @@ const Header = ({screenName, navigation, goback}) => {
       navigation.goBack();
     }
   return (
-    <View className="flex flex-row justify-between items-center bg-white pt-11 pb-4 px-2 mb-3">
+    <View className="flex flex-row justify-between items-center bg-white pt-11 pb-4 px-2 mb-3 border-b border-gray-500">
         <View className="flex flex-row items-center">
           {goback &&<Ionicons name="chevron-back-outline" size={28} onPress={handleBack}></Ionicons>}
           <Text className="text-2xl font-bold">{screenName}</Text>

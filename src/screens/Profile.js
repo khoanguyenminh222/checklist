@@ -123,7 +123,7 @@ const Profile = ({ navigation }) => {
           <TouchableOpacity className="mt-5 bg-blue-500 p-3 rounded-md items-center" onPress={handleChangePassword}>
             <Text className="text-white text-base font-bold">Thay đổi mật khẩu</Text>
           </TouchableOpacity>
-          {message && <ToastMesssage message={message} key={toastKey}/>}
+          {message && <ToastMesssage message={message} key={toastKey} time={1500}/>}
         </View>
       </ScrollView>
     </SafeAreaView>

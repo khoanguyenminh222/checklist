@@ -239,11 +239,11 @@ const CheckList = ({ navigation }) => {
                             onPress={handleSubmit}
                         />
                     </View>
-                    {errorName && <ToastMesssage message={errorName} />}
-                    {errorDistrict && <ToastMesssage message={errorDistrict} />}
-                    {errorPhoneNumber && <ToastMesssage message={errorPhoneNumber} />}
-                    {errorAddress && <ToastMesssage message={errorAddress} />}
-                    {message && <ToastMesssage message={message} />}
+                    {errorName && <ToastMesssage message={errorName} time={1500}/>}
+                    {errorDistrict && <ToastMesssage message={errorDistrict} time={1500}/>}
+                    {errorPhoneNumber && <ToastMesssage message={errorPhoneNumber} time={1500}/>}
+                    {errorAddress && <ToastMesssage message={errorAddress} time={1500}/>}
+                    {message && <ToastMesssage message={message} time={1500}/>}
                 </View>
             </ScrollView>
         </SafeAreaView>

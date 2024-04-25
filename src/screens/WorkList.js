@@ -174,7 +174,7 @@ const WorkList = ({ navigation }) => {
                 />
                 {/* Nút thêm công việc */}
                 <Button title="Thêm công việc" onPress={() => handleAddWork()} />
-                {message && <ToastMesssage message={message} key={toastKey}/>}
+                {message && <ToastMesssage message={message} key={toastKey} time={1500}/>}
             </View>
             </ScrollView>
         </SafeAreaView>

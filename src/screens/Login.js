@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextInput, Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import * as Notifications from 'expo-notifications';
 import { Ionicons } from '@expo/vector-icons'
 import Checkbox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,22 +18,6 @@ const Login = ({ navigation }) => {
   const [isChecked, setChecked] = useState(false);
   const [message, setMessage] = useState('');
   const [toastKey, setToastKey] = useState(0);
-
-  useEffect(() => {
-    // Function to display a notification
-    async function displayNotification() {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'Thông báo',
-          body: 'Đây là thông báo',
-        },
-        trigger: null, // Trigger immediately
-      });
-    }
-
-    // Call the function to display notification when component mounts
-    displayNotification();
-  }, []);
 
   // Khi màn hình đăng nhập được tải, kiểm tra xem có thông tin đăng nhập đã được lưu trong AsyncStorage hay không
   useEffect(() => {

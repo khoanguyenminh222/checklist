@@ -9,7 +9,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import ToastMesssage from '../components/ToastMessage';
 import * as FileSystem from 'expo-file-system';
 import { shareAsync } from 'expo-sharing';
-import * as Notifications from 'expo-notifications';
 import * as DocumentPicker from 'expo-document-picker';
 
 const Report = ({ navigation }) => {
@@ -53,28 +52,6 @@ const Report = ({ navigation }) => {
     setDateEnd(currentDate);
   };
 
-  useEffect(() => {
-    // Tạo kênh thông báo
-    const createNotificationChannel = async () => {
-      const channelId = 'your_channel_id'; // Đặt ID kênh tại đây
-      const channelName = 'Your Channel Name'; // Tên của kênh
-      const channelDescription = 'A channel to categorize your notifications'; // Mô tả của kênh
-      const importance = Notifications.AndroidImportance.DEFAULT;
-      const vibrationPattern = [0, 250, 250, 250];
-      const lightColor = '#FF231F7C';
-
-      await Notifications.setNotificationChannelAsync(channelId, {
-        name: channelName,
-        importance,
-        vibrationPattern,
-        lightColor,
-      });
-      console.log(`Channel created: ${channelId}`);
-    };
-
-    createNotificationChannel();
-  }, []);
-
   const handleExport = async () => {
     try {
       const response = await axios.post(`${domain}${listSubmitRoute}/export`, {
@@ -92,14 +69,6 @@ const Report = ({ navigation }) => {
         );
         if (result && result.status === 200) {
           save(result.uri, fileName, result.headers["Content-Type"]);
-          const content = {
-            title: 'Xuất file thành công',
-            body: 'Tệp Excel đã được tải xuống thành công.'
-          };
-          await Notifications.scheduleNotificationAsync({
-            content,
-            trigger: null // Gửi ngay lập tức
-          });
         } else {
           throw new Error('Failed to download Excel file');
         }
@@ -122,6 +91,7 @@ const Report = ({ navigation }) => {
         await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, filename, mimetype)
           .then(async (uri) => {
             await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
+            Alert.alert('Thông báo', 'Tệp Excel đã được tải xuống thành công.');
           })
           .catch(e => console.log(e));
       } else {

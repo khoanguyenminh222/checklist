@@ -12,12 +12,13 @@ import ToastMesssage from '../components/ToastMessage';
 
 const Login = ({ navigation }) => {
   const { updateUser } = useUser();
-  const [username, setUsername] = useState('khoavnpt27@gmail.com');
-  const [password, setPassword] = useState('khoa');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [isChecked, setChecked] = useState(false);
   const [message, setMessage] = useState('');
   const [toastKey, setToastKey] = useState(0);
+  const [loginInfoRetrieved, setLoginInfoRetrieved] = useState(false);
 
   // Khi màn hình đăng nhập được tải, kiểm tra xem có thông tin đăng nhập đã được lưu trong AsyncStorage hay không
   useEffect(() => {
@@ -29,10 +30,7 @@ const Login = ({ navigation }) => {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setChecked(true); // Đánh dấu checkbox "Remember"
-          if (!password && !username) {
-            handleLogin(); // Tự động đăng nhập
-          }
-
+          setLoginInfoRetrieved(true);
         }
       } catch (error) {
         console.error('Lỗi khi lấy thông tin đăng nhập từ AsyncStorage:', error);
@@ -41,6 +39,12 @@ const Login = ({ navigation }) => {
 
     retrieveLoginInfo();
   }, []);
+
+  useEffect(() => {
+    if (loginInfoRetrieved && username && password) {
+      handleLogin();
+    }
+  }, [loginInfoRetrieved, username, password]);
 
   const handleLogin = async () => {
     // Thực hiện xác thực đăng nhập, sau đó lưu thông tin người dùng vào Context

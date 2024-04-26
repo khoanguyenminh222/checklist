@@ -2,6 +2,7 @@ import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput } from 
 import React, { useCallback, useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons'
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
 import { domain, listSubmitRoute } from '../api/BaseURL';
@@ -11,6 +12,9 @@ const History = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [histories, setHistories] = useState([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [endOfList, setEndOfList] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -30,13 +34,37 @@ const History = ({ navigation }) => {
     }
   }, [navigation]);
 
-  useEffect(() => {
-    const fetchListSubmit = async () => {
-      const response = await axios.get(`${domain}${listSubmitRoute}`); // lấy ra danh sánh listSubmit
-      setHistories(response.data);
+  const fetchListSubmit = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${domain}${listSubmitRoute}?page=${page}`); // lấy ra danh sánh listSubmit
+      const newData = response.data;
+      if (newData.checklistSubmissions.length === 0) {
+          setEndOfList(true);
+      } else {
+          setHistories(prevWorkList => [...prevWorkList, ...newData.checklistSubmissions]);
+          setPage(prevPage => prevPage + 1);
+      }
+    } catch (error) {
+      console.error('Error fetching work list:', error);
+    } finally {
+      setLoading(false);
     }
+  }
+  useEffect(() => {
     fetchListSubmit();
   }, [])
+
+  const handleScroll = ({ nativeEvent }) => {
+    if (isCloseToBottom(nativeEvent) && !loading && !endOfList) {
+      fetchListSubmit();
+    }
+  };
+
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+      const paddingToBottom = 20;
+      return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  };
 
   const handelSearch = async (text) => {
     setSearch(text)
@@ -59,11 +87,12 @@ const History = ({ navigation }) => {
         onChangeText={(text) => handelSearch(text)}
       />
       <ScrollView
-        contentContainerStyle={{ alignItems: 'center', paddingTop: '20' }}
+        onScroll={handleScroll}
+        contentContainerStyle={{ alignItems: 'center', marginBottom: 20 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {histories.map((history, index) => (
-          <View key={index} className="px-5 pb-5 my-5 bg-gray-100 rounded-2xl w-11/12">
+          <View key={index} className="px-5 pb-5 mt-5 mb-2 bg-gray-100 rounded-2xl w-11/12">
             <Text className="text-lg font-bold mt-5">Nhân viên:</Text>
             <Text className="text-base mt-1">
               {history.userId.fullname} - {history.userId.username}
@@ -90,6 +119,8 @@ const History = ({ navigation }) => {
             </View>
           </View>
         ))}
+        {loading && <Ionicons name="reload-circle-outline" size={40} color="gray" />}
+        {endOfList && <Text style={{ textAlign: 'center', marginBottom: 10 }}>Hết</Text>}
       </ScrollView>
     </SafeAreaView>
   )

@@ -145,10 +145,15 @@ const Report = ({ navigation }) => {
         if (response.status >= 200 && response.status < 300) {
           setMessage(response.data.message);
           setToastKey(prevKey => prevKey + 1);
+        }else{
+          setMessage(response.data.message);
+          setToastKey(prevKey => prevKey + 1);
         }
         console.log('Tệp đã chọn:', selectedFile);
       } catch (error) {
-        console.error('Error submitting file:', error);
+        setMessage('Lỗi file không chứa tiêu đề cần nhập');
+        setToastKey(prevKey => prevKey + 1);
+        //console.error('Error submitting file:', error);
       }
     } else {
       Alert.alert('Thông báo', 'Vui lòng chọn một tệp trước khi gửi.');

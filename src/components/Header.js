@@ -1,11 +1,14 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '../UserProvider';
 
 const Header = ({screenName, navigation, goback}) => {
     const { user, logout } = useUser();
-    const handleLogout = () => {
+    const handleLogout = async () => {
+      await AsyncStorage.removeItem('username');
+      await AsyncStorage.removeItem('password');
         logout();
         navigation.navigate('Login');
     }

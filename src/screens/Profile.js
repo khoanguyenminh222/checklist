@@ -1,5 +1,6 @@
 import { View, Text, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, TextInput } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons'
 import { useUser } from '../UserProvider';
 import Header from '../components/Header';
@@ -76,6 +77,7 @@ const Profile = ({ navigation }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" />
       <Header screenName="Profile" navigation={navigation} />
       <ScrollView
         contentContainerStyle={{ alignItems: 'center', paddingTop: '20' }}

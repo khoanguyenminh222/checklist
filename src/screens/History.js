@@ -1,5 +1,6 @@
 import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput } from 'react-native'
 import React, { useCallback, useState, useEffect } from 'react'
+import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
@@ -50,6 +51,7 @@ const History = ({ navigation }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" />
       <Header screenName="History" navigation={navigation} />
       <TextInput className="h-14 border-b border-gray-200 mb-5 text-xl px-2"
         placeholder='Tìm kiếm'

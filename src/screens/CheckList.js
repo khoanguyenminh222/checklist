@@ -1,5 +1,6 @@
 import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, TouchableOpacity } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import DropdownComponent from '../components/DropdownComponent';
 import validator from 'validator';
 import Item from '../components/Item';
@@ -157,6 +158,7 @@ const CheckList = ({ navigation }) => {
     };
     return (
         <SafeAreaView className="flex-1">
+            <StatusBar style="dark" />
             <Header screenName="CheckList" navigation={navigation} />
             <ScrollView refreshControl={
                 <RefreshControl

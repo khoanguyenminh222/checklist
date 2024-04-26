@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, Button, SafeAreaView, Alert, ScrollView, RefreshControl } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
 import axios from 'axios';
@@ -144,6 +145,7 @@ const WorkList = ({ navigation }) => {
       }, []);
     return (
         <SafeAreaView className="flex-1">
+            <StatusBar style="dark" />
             <Header screenName="WorkList" navigation={navigation} />
             <ScrollView refreshControl={
                 <RefreshControl

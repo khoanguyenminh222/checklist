@@ -1,5 +1,6 @@
 import { View, Text, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, Platform, Alert, Button } from 'react-native'
 import React, { useCallback, useState, useEffect } from 'react'
+import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
@@ -178,6 +179,7 @@ const Report = ({ navigation }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-200">
+      <StatusBar style="dark" />
       <Header screenName="Report" navigation={navigation} />
       <ScrollView
         contentContainerStyle={{ alignItems: 'center', paddingTop: '20' }}

@@ -1,6 +1,7 @@
 // LoginScreen.js
 import React, { useState, useEffect } from 'react';
 import { Button, TextInput, Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons'
 import Checkbox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -91,6 +92,7 @@ const Login = ({ navigation }) => {
   };
   return (
     <SafeAreaView className="flex-1 justify-center items-center bg-white">
+    <StatusBar style="dark" />
       <View className="w-10/12">
         <Text className="text-2xl font-bold mb-5 text-center">Đăng nhập</Text>
         <TextInput className="h-14 border border-gray-300 rounded mb-3 px-2" placeholder="Tên nhân viên" value={username} onChangeText={setUsername} />

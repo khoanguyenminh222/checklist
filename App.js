@@ -24,7 +24,7 @@ const TabNavigatorAdmin = () => {
       <Tab.Screen name='CheckList' component={CheckList} options={{
         title: "CheckList",
         tabBarIcon: ({ color, size }) => {
-          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+          return <Ionicons name="checkbox-outline" color={color} size={size}></Ionicons>
         }
       }} />
       <Tab.Screen name='WorkList' component={WorkList} options={{
@@ -36,19 +36,19 @@ const TabNavigatorAdmin = () => {
       <Tab.Screen name='Profile' component={Profile} options={{
         title: "Profile",
         tabBarIcon: ({ color, size }) => {
-          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+          return <Ionicons name="person-outline" color={color} size={size}></Ionicons>
         }
       }} />
       <Tab.Screen name='History' component={History} options={{
         title: "History",
         tabBarIcon: ({ color, size }) => {
-          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+          return <Ionicons name="newspaper-outline" color={color} size={size}></Ionicons>
         }
       }} />
       <Tab.Screen name='Report' component={Report} options={{
         title: "Report",
         tabBarIcon: ({ color, size }) => {
-          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+          return <Ionicons name="document-outline" color={color} size={size}></Ionicons>
         }
       }} />
     </Tab.Navigator>

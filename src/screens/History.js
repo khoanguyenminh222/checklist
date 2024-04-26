@@ -53,7 +53,7 @@ const History = ({ navigation }) => {
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
       <Header screenName="History" navigation={navigation} />
-      <TextInput className="h-14 border-b border-gray-200 mb-5 text-xl px-2"
+      <TextInput className="h-14 border-b border-gray-200 text-xl px-2"
         placeholder='Tìm kiếm'
         value={search}
         onChangeText={(text) => handelSearch(text)}
@@ -63,7 +63,7 @@ const History = ({ navigation }) => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {histories.map((history, index) => (
-          <View key={index} className="px-5 pb-5 mb-5 bg-gray-100 rounded-2xl w-11/12">
+          <View key={index} className="px-5 pb-5 my-5 bg-gray-100 rounded-2xl w-11/12">
             <Text className="text-lg font-bold mt-5">Nhân viên:</Text>
             <Text className="text-base mt-1">
               {history.userId.fullname} - {history.userId.username}

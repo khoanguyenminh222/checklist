@@ -2,12 +2,12 @@
   "expo": {
     "name": "CheckList",
     "slug": "CheckList",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,11 +19,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.vnpt.CheckList",
-      "useNextNotificationsApi": true
+      "package": "com.vnpt.CheckList"
     },
     "web": {
       "favicon": "./assets/favicon.png"

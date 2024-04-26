@@ -8,6 +8,7 @@ import { domain, listSubmitRoute, userRoute } from '../api/BaseURL';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ToastMesssage from '../components/ToastMessage';
 import * as FileSystem from 'expo-file-system';
+import * as Notifications from 'expo-notifications';
 import { shareAsync } from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -92,6 +93,13 @@ const Report = ({ navigation }) => {
           .then(async (uri) => {
             await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
             Alert.alert('Thông báo', 'Tệp Excel đã được tải xuống thành công.');
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: 'Expo notification',
+                body: 'scheduleNotificationAsync'
+              },
+              trigger: null // Gửi ngay lập tức
+            });
           })
           .catch(e => console.log(e));
       } else {

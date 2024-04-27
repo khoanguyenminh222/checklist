@@ -41,10 +41,10 @@ const Login = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (loginInfoRetrieved && username && password) {
+    if (loginInfoRetrieved) {
       handleLogin();
     }
-  }, [loginInfoRetrieved, username, password]);
+  }, [loginInfoRetrieved]);
 
   const handleLogin = async () => {
     // Thực hiện xác thực đăng nhập, sau đó lưu thông tin người dùng vào Context

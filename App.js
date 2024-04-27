@@ -66,6 +66,12 @@ const TabNavigatorUser = () => {
           return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
         }
       }} />
+      <Tab.Screen name='History' component={History} options={{
+        title: "History",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="newspaper-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
       <Tab.Screen name='Profile' component={Profile} options={{
         title: "Profile",
         tabBarIcon: ({ color, size }) => {
@@ -85,8 +91,8 @@ const StackNavigator = () => {
       }}
     >
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="CheckList" component={CheckList} />
-      <Stack.Screen name="WorkList" component={WorkList} />
+      {/* <Stack.Screen name="CheckList" component={CheckList} />
+      <Stack.Screen name="WorkList" component={WorkList} /> */}
       <Stack.Screen name="MainAdmin" component={TabNavigatorAdmin} />
       <Stack.Screen name="MainUser" component={TabNavigatorUser} />
     </Stack.Navigator>

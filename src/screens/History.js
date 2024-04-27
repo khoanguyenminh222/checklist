@@ -8,7 +8,7 @@ import { useUser } from '../UserProvider';
 import { domain, listSubmitRoute } from '../api/BaseURL';
 
 const History = ({ navigation }) => {
-  const { isLogin } = useUser();
+  const { user, isLogin } = useUser();
   const [refreshing, setRefreshing] = useState(false);
   const [histories, setHistories] = useState([]);
   const [search, setSearch] = useState('');
@@ -37,8 +37,9 @@ const History = ({ navigation }) => {
   const fetchListSubmit = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${domain}${listSubmitRoute}?page=${page}`); // lấy ra danh sánh listSubmit
+      const response = await axios.get(`${domain}${listSubmitRoute}?page=${page}&search=${search}&role=${user.role}&userId=${user._id}`); // lấy ra danh sánh listSubmit
       const newData = response.data;
+      console.log(newData)
       if (newData.checklistSubmissions.length === 0) {
           setEndOfList(true);
       } else {
@@ -67,14 +68,10 @@ const History = ({ navigation }) => {
   };
 
   const handelSearch = async (text) => {
-    setSearch(text)
-    try {
-      const response = await axios.get(`${domain}${listSubmitRoute}/search?query=${text}`);
-      setHistories(response.data);
-      console.log(response.data)
-    } catch (error) {
-      console.error('Error fetching list submissions by query:', error);
-    }
+    setSearch(text);
+    setPage(1); // Reset trang về trang đầu tiên khi thực hiện tìm kiếm mới
+    setHistories([]); // Xóa lịch sử hiện tại khi thực hiện tìm kiếm mới
+    fetchListSubmit(); // Gọi hàm fetchListSubmit để lấy dữ liệu mới
   }
 
   return (

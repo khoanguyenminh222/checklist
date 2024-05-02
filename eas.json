@@ -10,6 +10,9 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "internal"
       }
     },
     "preview2": {
@@ -31,6 +34,11 @@
       "ios": {
         "distribution": "store",
         "releaseChannel": "default"
+      }
+    },
+    "simulator": {
+      "ios" : {
+        "simulator": true
       }
     }
   },

@@ -40,24 +40,24 @@ const Profile = ({ navigation }) => {
     }
   }, [navigation]);
 
-  const handleChangePassword = async() => {
+  const handleChangePassword = async () => {
     try {
-      if(!currentPassword){
+      if (!currentPassword) {
         setMessage('Vui lòng điền mật khẩu cũ')
         setToastKey(prevKey => prevKey + 1);
         return;
       }
-      if(!newPassword){
+      if (!newPassword) {
         setMessage('Vui lòng điền mật khẩu mới')
         setToastKey(prevKey => prevKey + 1);
         return;
       }
-      if(!confirmPassword){
+      if (!confirmPassword) {
         setMessage('Vui lòng điền `nhập lại mật khẩu mới`')
         setToastKey(prevKey => prevKey + 1);
         return;
       }
-      if(newPassword!==confirmPassword){
+      if (newPassword !== confirmPassword) {
         setMessage('Mật khẩu mới và nhập lại mật khẩu chưa giống nhau')
         setToastKey(prevKey => prevKey + 1);
         return;
@@ -85,15 +85,20 @@ const Profile = ({ navigation }) => {
       >
         <View className="p-5 rounded-lg w-11/12 mb-5 bg-gray-100">
           <View className="items-center">
-            <Text className="text-xl font-bold mb-3">{user.username}</Text>
-            <Text className="text-base mb-1">Họ tên: {user.fullname}</Text>
-            <Text className="text-base">Huyện: {user.district}</Text>
+            {user && (
+              <>
+                <Text className="text-xl font-bold mb-3">{user.username}</Text>
+                <Text className="text-base mb-1">Họ tên: {user.fullname}</Text>
+                <Text className="text-base">Huyện: {user.district}</Text>
+              </>
+            )}
+
           </View>
         </View>
         <View className="p-5 rounded-lg w-11/12 mb-5 bg-gray-100">
           <View className="items-center">
             <Text className="text-xl font-bold mb-3">Thay đổi password</Text>
-            
+
             <View className="flex flex-row items-center mb-3">
               <TextInput
                 className="h-14 border rounded-md pl-3 w-full"
@@ -125,7 +130,7 @@ const Profile = ({ navigation }) => {
           <TouchableOpacity className="mt-5 bg-blue-500 p-3 rounded-md items-center" onPress={handleChangePassword}>
             <Text className="text-white text-base font-bold">Thay đổi mật khẩu</Text>
           </TouchableOpacity>
-          {message && <ToastMesssage message={message} key={toastKey} time={1500}/>}
+          {message && <ToastMesssage message={message} key={toastKey} time={1500} />}
         </View>
       </ScrollView>
     </SafeAreaView>

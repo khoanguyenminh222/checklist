@@ -115,7 +115,9 @@ const Login = ({ navigation }) => {
           />
           <Text className="text-sm">Remember</Text>
         </View>
-        <Button title="Đăng nhập" onPress={handleLogin} />
+        <TouchableOpacity className="bg-blue-500 p-3 rounded-md items-center" onPress={handleLogin}>
+          <Text className="text-white text-base font-bold">Đăng nhập</Text>
+        </TouchableOpacity>
         {message && <ToastMesssage message={message} key={toastKey} time={1500} />}
       </View>
     </SafeAreaView>

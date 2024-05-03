@@ -158,7 +158,7 @@ const WorkList = ({ navigation }) => {
                     item.status==0 && 
                     (<TouchableOpacity key={item._id} onPress={() => handleEditWork(item._id)}>
                         <View className="flex flex-row justify-between items-center px-4 py-2 border-b-2 border-b-white mb-2">
-                            <Text className="flex-1 mr-2 text-lg">{index + 1}. {item.name}</Text>
+                            <Text className="flex-1 mr-2 text-lg">{workList.filter(work => work.status === 0).indexOf(item) + 1}. {item.name}</Text>
                             <TouchableOpacity className="mr-2" onPress={() => handleEditWork(item._id)}>
                                 <Ionicons name="create-outline" size={24} color="blue"></Ionicons>
                             </TouchableOpacity>

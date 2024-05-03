@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 7.8.2"
+    "version": ">= 7.8.2",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -16,14 +17,7 @@
       }
     },
     "production": {
-      "android": {
-        "distribution": "store",
-        "releaseChannel": "default"
-      },
-      "ios": {
-        "distribution": "store",
-        "releaseChannel": "default"
-      }
+      "autoIncrement": true
     },
     "simulator": {
       "ios" : {

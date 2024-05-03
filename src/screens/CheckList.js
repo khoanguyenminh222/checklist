@@ -217,7 +217,7 @@ const CheckList = ({ navigation }) => {
                         {/* Đây là chỗ fetch item */}
                         {workList.map((work, index) =>
                             work.status == 0 && 
-                            (<Item key={work._id} work={work} index={index} onCheckboxChange={handleCheckboxChange} district={district} />)
+                            (<Item key={work._id} work={work} index={workList.filter(work => work.status === 0).indexOf(work)} onCheckboxChange={handleCheckboxChange} district={district} />)
                         )}
                         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                             <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{date.toLocaleDateString()}</Text>

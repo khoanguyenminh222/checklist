@@ -82,7 +82,7 @@ const CheckList = ({ navigation }) => {
         { label: 'Bà Rịa', value: 'Bà Rịa' },
         { label: 'Châu Đức', value: 'Châu Đức' },
         { label: 'Xuyên Mộc', value: 'Xuyên Mộc' },
-        { label: 'Tân Thành', value: 'Tân Thành' },
+        { label: 'Phú Mỹ', value: 'Phú Mỹ' },
         { label: 'Long Điền', value: 'Long Điền' },
         { label: 'Đất Đỏ', value: 'Đất Đỏ' },
         { label: 'Côn Đảo', value: 'Côn Đảo' },
@@ -147,6 +147,7 @@ const CheckList = ({ navigation }) => {
             const response = await axios.post(`${domain}${listSubmitRoute}`, formData);
             if (response.status >= 200 && response.status < 300) {
                 setMessage("Gửi thông tin thành công")
+                onRefresh()
             } else {
                 console.error('Submission failed with status:', response.status);
             }

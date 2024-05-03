@@ -63,7 +63,7 @@ const TabNavigatorUser = () => {
       <Tab.Screen name='CheckList' component={CheckList} options={{
         title: "CheckList",
         tabBarIcon: ({ color, size }) => {
-          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+          return <Ionicons name="checkbox-outline" color={color} size={size}></Ionicons>
         }
       }} />
       <Tab.Screen name='History' component={History} options={{
@@ -75,7 +75,7 @@ const TabNavigatorUser = () => {
       <Tab.Screen name='Profile' component={Profile} options={{
         title: "Profile",
         tabBarIcon: ({ color, size }) => {
-          return <Ionicons name="home-outline" color={color} size={size}></Ionicons>
+          return <Ionicons name="person-outline" color={color} size={size}></Ionicons>
         }
       }} />
     </Tab.Navigator>

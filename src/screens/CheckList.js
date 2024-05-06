@@ -39,6 +39,7 @@ const CheckList = ({ navigation }) => {
     const [selectedNetwork, setSelectedNetwork] = useState(null);
     const [paymentTime, setPaymentTime] = useState(null);
     const [imageSource, setImageSource] = useState(null);
+    const [imageBase64, setImageBase64] = useState(null);
     const [currentLatitude, setCurrentLatitude] = useState(null); // State để lưu trữ vĩ độ
     const [currentLongitude, setCurrentLongitude] = useState(null); // State để lưu trữ kinh độ
 
@@ -64,8 +65,10 @@ const CheckList = ({ navigation }) => {
     };
 
     const handleLocationChange = (latitude, longitude) => {
-        setCurrentLatitude(latitude); // Cập nhật vĩ độ
-        setCurrentLongitude(longitude); // Cập nhật kinh độ
+        if (latitude && longitude){
+            setCurrentLatitude(latitude); // Cập nhật vĩ độ
+            setCurrentLongitude(longitude); // Cập nhật kinh độ
+        }
     };
 
     const onChange = (event, selectedDate) => {
@@ -307,7 +310,7 @@ const CheckList = ({ navigation }) => {
                             ))}
                         </View>
                         <View className='my-2'>
-                            <Text className="text-base font-bold">Thời gian đóng</Text>
+                            <Text className="text-base font-bold">Thời gian đóng (*)</Text>
                             {times.map((time, index) => (
                                 <TouchableOpacity
                                     key={index}
@@ -336,11 +339,11 @@ const CheckList = ({ navigation }) => {
                         />}
                         <View className='my-2'>
                             <Text className='text-base font-bold'>Chọn ảnh</Text>
-                            <ImagePickerComponent setSelectedImage={setImageSource} />
-                            {imageSource && (
+                            <ImagePickerComponent setImageBase64={setImageBase64}/>
+                            {imageBase64 && (
                                 <View className='flex items-center justify-center'>
                                     <Image
-                                        source={{ uri: imageSource }}
+                                        source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
                                         className='w-40 h-40 rounded-md'
                                     />
                                 </View>

@@ -7,17 +7,23 @@ const LocationComponent = ({onLocationChange}) => {
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Quyền truy cập vị trí bị từ chối');
-        return;
+    const getLocation = async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setErrorMsg('Quyền truy cập vị trí bị từ chối');
+          return;
+        }
+  
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location); // Lưu vị trí vào state
+        onLocationChange(location.coords.latitude, location.coords.longitude);
+      } catch (error) {
+        setErrorMsg('Yêu cầu vị trí không thành công. Vui lòng kiểm tra cài đặt của thiết bị.');
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location); // Lưu vị trí vào state
-      onLocationChange(location.coords.latitude, location.coords.longitude);
-    })();
+    };
+  
+    getLocation();
   }, []);
 
   let text = 'Đang xác định vị trí...';

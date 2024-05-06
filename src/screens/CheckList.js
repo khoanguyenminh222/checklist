@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, TouchableOpacity } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, TouchableOpacity, Image } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import DropdownComponent from '../components/DropdownComponent';
@@ -10,6 +10,8 @@ import { checklistRoute, domain, listSubmitRoute } from '../api/BaseURL';
 import axios from 'axios';
 import ToastMesssage from '../components/ToastMessage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import ImagePickerComponent from '../components/ImagePickerComponent';
+import LocationComponent from '../components/LocationComponent';
 
 const CheckList = ({ navigation }) => {
     const { user, isLogin } = useUser();
@@ -29,6 +31,16 @@ const CheckList = ({ navigation }) => {
     const [checkedItems, setCheckedItems] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false)
+    const [selectedNetwork, setSelectedNetwork] = useState(null);
+    const [paymentTime, setPaymentTime] = useState(null);
+    const [imageSource, setImageSource] = useState(null);
+    const [currentLatitude, setCurrentLatitude] = useState(null); // State để lưu trữ vĩ độ
+    const [currentLongitude, setCurrentLongitude] = useState(null); // State để lưu trữ kinh độ
+
+    const handleLocationChange = (latitude, longitude) => {
+        setCurrentLatitude(latitude); // Cập nhật vĩ độ
+        setCurrentLongitude(longitude); // Cập nhật kinh độ
+    };
 
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate;
@@ -89,6 +101,16 @@ const CheckList = ({ navigation }) => {
     ];
     const handleDistrictChange = (value) => {
         setDistrict(value);
+    };
+
+    const networks = ['Viettel', 'SCTV', 'FPT', 'Nhà mạng khác'];
+    const handleNetworkSelection = (network) => {
+        setSelectedNetwork(network);
+    };
+
+    const times = ['Theo tháng', 'Theo quý', 'Theo năm'];
+    const handlePaymentTimeSelection = (paymentTime) => {
+        setPaymentTime(paymentTime);
     };
 
     const handleSubmit = async () => {
@@ -216,9 +238,47 @@ const CheckList = ({ navigation }) => {
                         <Text className="text-base text-center font-bold text-blue-500 mb-4">Nội dung công việc đến nhà khách hàng</Text>
                         {/* Đây là chỗ fetch item */}
                         {workList.map((work, index) =>
-                            work.status == 0 && 
+                            work.status == 0 &&
                             (<Item key={work._id} work={work} index={workList.filter(work => work.status === 0).indexOf(work)} onCheckboxChange={handleCheckboxChange} district={district} />)
                         )}
+                        <View className='my-2'>
+                            <Text className="text-base font-bold">Nhà Mạng</Text>
+                            {networks.map((network, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    className='flex-row items-center mt-2'
+                                    onPress={() => handleNetworkSelection(network)}
+                                >
+                                    <View className='h-5 w-5 border border-gray rounded mr-3'>
+                                        {selectedNetwork === network && (
+                                            <View className='flex-1 items-center justify-center'>
+                                                <View className='h-2 w-2 bg-blue-500 rounded-full' />
+                                            </View>
+                                        )}
+                                    </View>
+                                    <Text className='text-base'>{network}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        <View className='my-2'>
+                            <Text className="text-base font-bold">Thời gian đóng</Text>
+                            {times.map((time, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    className='flex-row items-center mt-2'
+                                    onPress={() => handlePaymentTimeSelection(time)}
+                                >
+                                    <View className='h-5 w-5 border border-gray rounded mr-3'>
+                                        {paymentTime === time && (
+                                            <View className='flex-1 items-center justify-center'>
+                                                <View className='h-2 w-2 bg-blue-500 rounded-full' />
+                                            </View>
+                                        )}
+                                    </View>
+                                    <Text className='text-base'>{time}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                             <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{date.toLocaleDateString()}</Text>
                         </TouchableOpacity>
@@ -228,6 +288,19 @@ const CheckList = ({ navigation }) => {
                             onChange={onChange}
                             display={'default'}
                         />}
+                        <View className='my-2'>
+                            <Text className='text-base font-bold'>Chọn ảnh</Text>
+                            <ImagePickerComponent setSelectedImage={setImageSource} />
+                            {imageSource && (
+                                <View className='flex items-center justify-center'>
+                                    <Image
+                                        source={{ uri: imageSource }}
+                                        className='w-40 h-40 rounded-md'
+                                    />
+                                </View>
+                            )}
+                        </View>
+                        
                         <TextInput
                             value={note}
                             onChangeText={(text) => setNote(text)}
@@ -236,17 +309,19 @@ const CheckList = ({ navigation }) => {
                             multiline={true}
                             numberOfLines={4}
                         />
-                        <Button
-                            title='Gửi'
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            onPress={handleSubmit}
-                        />
+                        <View className='mb-2'>
+                            <LocationComponent onLocationChange={handleLocationChange}/>
+                        </View>
+                        
+                        <TouchableOpacity onPress={handleSubmit} className="bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline items-center">
+                            <Text className='text-white font-bold text-base'>Gửi</Text>
+                        </TouchableOpacity>
                     </View>
-                    {errorName && <ToastMesssage message={errorName} time={1500}/>}
-                    {errorDistrict && <ToastMesssage message={errorDistrict} time={1500}/>}
-                    {errorPhoneNumber && <ToastMesssage message={errorPhoneNumber} time={1500}/>}
-                    {errorAddress && <ToastMesssage message={errorAddress} time={1500}/>}
-                    {message && <ToastMesssage message={message} time={1500}/>}
+                    {errorName && <ToastMesssage message={errorName} time={1500} />}
+                    {errorDistrict && <ToastMesssage message={errorDistrict} time={1500} />}
+                    {errorPhoneNumber && <ToastMesssage message={errorPhoneNumber} time={1500} />}
+                    {errorAddress && <ToastMesssage message={errorAddress} time={1500} />}
+                    {message && <ToastMesssage message={message} time={1500} />}
                 </View>
             </ScrollView>
         </SafeAreaView>

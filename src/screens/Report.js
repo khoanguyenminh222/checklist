@@ -116,7 +116,7 @@ const Report = ({ navigation }) => {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Chỉ chấp nhận các tệp xlsx
         copyToCacheDirectory: false, // Không sao chép tệp vào thư mục cache
       });
-      if (!file.cancelled) {
+      if (!file.canceled) {
         setSelectedFile(file);
       } else {
         Alert.alert('Thông báo', 'Người dùng không chọn tệp nào.');

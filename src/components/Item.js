@@ -10,7 +10,7 @@ const Item = ({work, index, onCheckboxChange}) => {
     return (
         <View className="flex flex-row items-center justify-items-start my-2 pr-5">
             <Checkbox
-                className="my-2 mr-3"
+                className="my-2 mr-3 rounded"
                 value={isChecked}
                 onValueChange={newValue => {
                     setChecked(newValue);

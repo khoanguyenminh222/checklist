@@ -1,5 +1,6 @@
-const domain = 'http://113.161.141.174:10000';  //http://113.161.141.174:10000
+const domain = 'http://192.168.1.188:10000';  //http://113.161.141.174:10000
 const checklistRoute = '/api/checklist';
 const listSubmitRoute = '/api/listSubmit';
 const userRoute = '/api/user';
-export {domain, checklistRoute, listSubmitRoute, userRoute};
+const addressRoute = '/api/address';
+export {domain, checklistRoute, listSubmitRoute, userRoute, addressRoute};

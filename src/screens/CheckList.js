@@ -6,7 +6,7 @@ import validator from 'validator';
 import Item from '../components/Item';
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
-import { checklistRoute, domain, listSubmitRoute } from '../api/BaseURL';
+import { addressRoute, checklistRoute, domain, listSubmitRoute } from '../api/BaseURL';
 import axios from 'axios';
 import ToastMesssage from '../components/ToastMessage';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,7 +16,12 @@ import LocationComponent from '../components/LocationComponent';
 const CheckList = ({ navigation }) => {
     const { user, isLogin } = useUser();
     const [name, setName] = useState('');
-    const [district, setDistrict] = useState('');
+    const [quanList, setQuanList] = useState([]);
+    const [selectedQuan, setSelectedQuan] = useState(null);
+    const [phuongList, setPhuongList] = useState([]);
+    const [selectedPhuong, setSelectedPhuong] = useState(null);
+    const [phoList, setPhoList] = useState([]);
+    const [selectedPho, setSelectedPho] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [address, setAddress] = useState('');
     const [vnptAccount, setVnptAccount] = useState('');
@@ -36,6 +41,27 @@ const CheckList = ({ navigation }) => {
     const [imageSource, setImageSource] = useState(null);
     const [currentLatitude, setCurrentLatitude] = useState(null); // State để lưu trữ vĩ độ
     const [currentLongitude, setCurrentLongitude] = useState(null); // State để lưu trữ kinh độ
+
+    const handleQuanChange = async (value) => {
+        setPhoList([])
+        setPhuongList([])
+        // Cập nhật quận được chọn
+        setSelectedQuan(value);
+        // Lấy danh sách phường dựa trên quận đã chọn và cập nhật state
+        const phuongData = await axios.get(`${domain}${addressRoute}/phuong/${value}`)
+        setPhuongList(phuongData.data);
+        
+    };
+    const handlePhuongChange = async (value) => {
+        setPhoList([])
+        setSelectedPhuong(value);
+        // Lấy danh sách phường dựa trên quận đã chọn và cập nhật state
+        const phoData = await axios.get(`${domain}${addressRoute}/pho/${value}`)
+        setPhoList(phoData.data);
+    };
+    const handlePhoChange = async (value) => {
+        setSelectedPho(value);
+    };
 
     const handleLocationChange = (latitude, longitude) => {
         setCurrentLatitude(latitude); // Cập nhật vĩ độ
@@ -71,7 +97,17 @@ const CheckList = ({ navigation }) => {
 
     useEffect(() => {
         fetchWorkList();
+        fetchQuan();
     }, []);
+
+    const fetchQuan = async () => {
+        try {
+            const response = await axios.get(`${domain}${addressRoute}/quan`);
+            setQuanList(response.data);
+        } catch (error) {
+            console.error('Error fetching quan list:', error);
+        }
+    }
 
     const fetchWorkList = async () => {
         try {
@@ -89,28 +125,24 @@ const CheckList = ({ navigation }) => {
         }
     }, [navigation]);
 
-    const data = [
-        { label: 'Thành phố Vũng Tàu', value: 'Thành phố Vũng Tàu' },
-        { label: 'Bà Rịa', value: 'Bà Rịa' },
-        { label: 'Châu Đức', value: 'Châu Đức' },
-        { label: 'Xuyên Mộc', value: 'Xuyên Mộc' },
-        { label: 'Phú Mỹ', value: 'Phú Mỹ' },
-        { label: 'Long Điền', value: 'Long Điền' },
-        { label: 'Đất Đỏ', value: 'Đất Đỏ' },
-        { label: 'Côn Đảo', value: 'Côn Đảo' },
-    ];
-    const handleDistrictChange = (value) => {
-        setDistrict(value);
-    };
-
     const networks = ['Viettel', 'SCTV', 'FPT', 'Nhà mạng khác'];
     const handleNetworkSelection = (network) => {
-        setSelectedNetwork(network);
+        if (selectedNetwork === network) {
+            // Nếu mạng đã được chọn trước đó, gỡ bỏ chọn
+            setSelectedNetwork(null);
+        } else {
+            // Nếu mạng chưa được chọn hoặc mạng mới được chọn, cập nhật state với mạng mới
+            setSelectedNetwork(network);
+        }
     };
 
     const times = ['Theo tháng', 'Theo quý', 'Theo năm'];
-    const handlePaymentTimeSelection = (paymentTime) => {
-        setPaymentTime(paymentTime);
+    const handlePaymentTimeSelection = (time) => {
+        if(paymentTime === time){
+            setPaymentTime(null);
+        } else {
+            setPaymentTime(time);
+        }
     };
 
     const handleSubmit = async () => {
@@ -122,12 +154,7 @@ const CheckList = ({ navigation }) => {
             } else {
                 setErrorName('');
             }
-            if (!district) {
-                setErrorDistrict('Vui lòng chọn huyện');
-                return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
-            } else {
-                setErrorDistrict('');
-            }
+            
             if (!phoneNumber) {
                 setErrorPhoneNumber('Vui lòng điền số điện thoại');
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
@@ -156,7 +183,6 @@ const CheckList = ({ navigation }) => {
             // Dữ liệu để gửi đi
             const formData = {
                 customerName: name,
-                district: district,
                 phoneNumber: phoneNumber,
                 address: address,
                 vnptAccount: vnptAccount,
@@ -200,14 +226,41 @@ const CheckList = ({ navigation }) => {
                             placeholder="Nhập tên khách hàng (*)"
                         />
                         <Text className="text-red-500 mb-1">{errorName}</Text>
+                        <View className='mb-5'>
+                            <DropdownComponent
+                                labelField="tenQuan"
+                                valueField="idQuan"
+                                placeholder="Chọn quận (*)"
+                                data={quanList}
+                                onChange={handleQuanChange}
+                            />
+                        </View>
+                        <View className='mb-5'>
+                            <DropdownComponent
+                                labelField="tenPhuong"
+                                valueField="idPhuong"
+                                placeholder="Chọn phường (*)"
+                                data={phuongList}
+                                onChange={handlePhuongChange}
+                            />
+                        </View>
                         <DropdownComponent
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Chọn huyện (*)"
-                            data={data}
-                            onChange={handleDistrictChange}
+                            labelField="tenPho"
+                            valueField="idPho"
+                            placeholder="Chọn phố"
+                            data={phoList}
+                            onChange={handlePhoChange}
                         />
+                        
                         <Text className="text-red-500 mb-1">{errorDistrict}</Text>
+                        <TextInput
+                            className="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            type="text"
+                            value={address}
+                            onChangeText={text => setAddress(text)}
+                            placeholder="Nhập địa chỉ (*)"
+                        />
+                        <Text className="text-red-500 mb-1">{errorAddress}</Text>
                         <TextInput
                             className="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="tel"
@@ -217,14 +270,7 @@ const CheckList = ({ navigation }) => {
                             keyboardType='phone-pad'
                         />
                         <Text className="text-red-500 mb-1">{errorPhoneNumber}</Text>
-                        <TextInput
-                            className="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            type="text"
-                            value={address}
-                            onChangeText={text => setAddress(text)}
-                            placeholder="Nhập địa chỉ (*)"
-                        />
-                        <Text className="text-red-500 mb-1">{errorAddress}</Text>
+                        
                         <TextInput
                             className="border rounded w-full py-2 px-3 mb-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="text"
@@ -239,7 +285,7 @@ const CheckList = ({ navigation }) => {
                         {/* Đây là chỗ fetch item */}
                         {workList.map((work, index) =>
                             work.status == 0 &&
-                            (<Item key={work._id} work={work} index={workList.filter(work => work.status === 0).indexOf(work)} onCheckboxChange={handleCheckboxChange} district={district} />)
+                            (<Item key={work._id} work={work} index={workList.filter(work => work.status === 0).indexOf(work)} onCheckboxChange={handleCheckboxChange} />)
                         )}
                         <View className='my-2'>
                             <Text className="text-base font-bold">Nhà Mạng</Text>

@@ -1,25 +1,25 @@
-import { View, Text } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect, } from 'react'
 import Checkbox from 'expo-checkbox';
+import { Ionicons } from '@expo/vector-icons'
 
-const Item = ({work, index, onCheckboxChange}) => {
+const Item = ({work, index}) => {
     const [isChecked, setChecked] = useState(false);
     useEffect(() => {
-        setChecked(false); // Đặt isChecked thành false khi một work mới được truyền vào
+        setChecked(work.isChecked); // Đặt isChecked thành false khi một work mới được truyền vào
     }, [work]);
     return (
-        <View className="flex flex-row items-center justify-items-start my-2 pr-5">
+        <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}
+            onPress={() => setChecked(!isChecked)} // Khi người dùng chạm vào item, cập nhật trạng thái isChecked
+        >
             <Checkbox
-                className="my-2 mr-3 rounded"
+                color={isChecked ? '#3b82f6' : undefined}
                 value={isChecked}
-                onValueChange={newValue => {
-                    setChecked(newValue);
-                    onCheckboxChange(newValue, work._id);
-                }}
-                color={isChecked ? 'blue' : undefined}
+                onValueChange={setChecked} // Khi giá trị của ô checkbox thay đổi, cập nhật trạng thái isChecked
             />
-            <Text className="text-sm">{index+1}. {work.name}</Text>
-        </View>
+            <Text style={{ marginLeft: 10 }}>{index + 1}. {work.name}</Text>
+        </TouchableOpacity>
     )
 }
 

@@ -2,20 +2,20 @@ import { View, Text } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Dropdown } from 'react-native-element-dropdown';
 
-const DropdownComponent = ({ labelField, valueField, placeholder, data, onChange, district }) => {
+const DropdownComponent = ({ labelField, valueField, placeholder, data, onChange }) => {
   const [value, setValue] = useState(null)
 
   const handleChange = (item) => {
-    setValue(item.value);
+    setValue(item[valueField]);
     if (onChange) {
-      onChange(item.value); // Gọi hàm callback và truyền giá trị của mục đã chọn
+      onChange(item[valueField]); // Gọi hàm callback và truyền giá trị của mục đã chọn
     }
   };
 
   const renderItem = item => {
     return (
       <View className="py-2 px-3">
-        <Text>{item.label}</Text>
+        <Text>{item[labelField]}</Text>
       </View>
     )
   }

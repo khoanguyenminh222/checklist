@@ -28,9 +28,12 @@ const CheckList = ({ navigation }) => {
     const [date, setDate] = useState(new Date());
     const [note, setNote] = useState('');
     const [errorName, setErrorName] = useState('');
-    const [errorDistrict, setErrorDistrict] = useState('');
+    const [errorQuan, setErrorQuan] = useState('');
+    const [errorPhuong, setErrorPhuong] = useState('');
     const [errorPhoneNumber, setErrorPhoneNumber] = useState('');
     const [errorAddress, setErrorAddress] = useState('');
+    const [errorPaymentTime, setErrorPaymentTime] = useState('');
+    const [errorLocation, setErrorLocation] = useState('');
     const [message, setMessage] = useState('');
     const [workList, setWorkList] = useState([]);
     const [checkedItems, setCheckedItems] = useState([]);
@@ -38,8 +41,7 @@ const CheckList = ({ navigation }) => {
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [selectedNetwork, setSelectedNetwork] = useState(null);
     const [paymentTime, setPaymentTime] = useState(null);
-    const [imageSource, setImageSource] = useState(null);
-    const [imageBase64, setImageBase64] = useState(null);
+    const [image, setImage] = useState(null);
     const [currentLatitude, setCurrentLatitude] = useState(null); // State để lưu trữ vĩ độ
     const [currentLongitude, setCurrentLongitude] = useState(null); // State để lưu trữ kinh độ
 
@@ -90,8 +92,10 @@ const CheckList = ({ navigation }) => {
 
     const handleCheckboxChange = (isChecked, workId) => {
         if (isChecked) {
-            // Nếu checkbox được check, thêm workId vào danh sách checkedItems
-            setCheckedItems(prevState => [...prevState, workId]);
+            // Nếu checkbox được check và workId chưa có trong mảng checkedItems, thêm vào danh sách checkedItems
+            if (!checkedItems.includes(workId)) {
+                setCheckedItems(prevState => [...prevState, workId]);
+            }
         } else {
             // Nếu checkbox được uncheck, loại bỏ workId khỏi danh sách checkedItems
             setCheckedItems(prevState => prevState.filter(id => id !== workId));
@@ -157,7 +161,18 @@ const CheckList = ({ navigation }) => {
             } else {
                 setErrorName('');
             }
-            
+            if (!selectedQuan) {
+                setErrorQuan('Vui lòng chọn quận');
+                return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
+            } else {
+                setErrorQuan('');
+            }
+            if (!selectedPhuong) {
+                setErrorPhuong('Vui lòng chọn phường');
+                return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
+            } else {
+                setErrorPhuong('');
+            }
             if (!phoneNumber) {
                 setErrorPhoneNumber('Vui lòng điền số điện thoại');
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
@@ -183,19 +198,49 @@ const CheckList = ({ navigation }) => {
             } else {
                 setMessage('');
             }
+            if (!paymentTime) {
+                setErrorPaymentTime('Vui lòng chọn thời gian đóng');
+                return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
+            } else {
+                setErrorPaymentTime('')
+            }
+            if(!currentLatitude && !currentLongitude){
+                setErrorLocation('Không thể truy cập vị trí hiện tại');
+                return;
+            } else {
+                setErrorLocation('')
+            }
+            
             // Dữ liệu để gửi đi
-            const formData = {
-                customerName: name,
-                phoneNumber: phoneNumber,
-                address: address,
-                vnptAccount: vnptAccount,
-                checkedItems: checkedItems, // Chỉ lấy _id của các item được check
-                date: date,
-                note: note,
-                userId: user._id,
-                username: user.username
-            };
-            const response = await axios.post(`${domain}${listSubmitRoute}`, formData);
+            const formData = new FormData();
+            formData.append('customerName', name);
+            formData.append('idQuan', selectedQuan);
+            formData.append('idPhuong', selectedPhuong);
+            formData.append('idPho', selectedPho || '');
+            formData.append('phoneNumber', phoneNumber);
+            formData.append('address', address);
+            formData.append('vnptAccount', vnptAccount);
+            formData.append('checkedItems', checkedItems)
+            formData.append('networks', selectedNetwork || '');
+            formData.append('paymentTime', paymentTime);
+            formData.append('date', date.toString());
+            formData.append('note', note);
+            formData.append('userId', user._id);
+            formData.append('location[latitude]', currentLatitude);
+            formData.append('location[longitude]', currentLongitude);
+            if(image){
+                formData.append('image', {
+                    uri: image,
+                    name: 'image.jpg',
+                    type: 'image/jpeg',
+                });
+            }
+            console.log(formData._parts)
+            const response = await axios.post(`${domain}${listSubmitRoute}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             if (response.status >= 200 && response.status < 300) {
                 setMessage("Gửi thông tin thành công")
                 onRefresh()
@@ -229,7 +274,7 @@ const CheckList = ({ navigation }) => {
                             placeholder="Nhập tên khách hàng (*)"
                         />
                         <Text className="text-red-500 mb-1">{errorName}</Text>
-                        <View className='mb-5'>
+                        <View className=''>
                             <DropdownComponent
                                 labelField="tenQuan"
                                 valueField="idQuan"
@@ -238,7 +283,8 @@ const CheckList = ({ navigation }) => {
                                 onChange={handleQuanChange}
                             />
                         </View>
-                        <View className='mb-5'>
+                        <Text className="text-red-500 mb-1">{errorQuan}</Text>
+                        <View className=''>
                             <DropdownComponent
                                 labelField="tenPhuong"
                                 valueField="idPhuong"
@@ -247,15 +293,18 @@ const CheckList = ({ navigation }) => {
                                 onChange={handlePhuongChange}
                             />
                         </View>
-                        <DropdownComponent
-                            labelField="tenPho"
-                            valueField="idPho"
-                            placeholder="Chọn phố"
-                            data={phoList}
-                            onChange={handlePhoChange}
-                        />
+                        <Text className="text-red-500 mb-1">{errorPhuong}</Text>
+                        <View className='mb-6'>
+                            <DropdownComponent
+                                labelField="tenPho"
+                                valueField="idPho"
+                                placeholder="Chọn phố"
+                                data={phoList}
+                                onChange={handlePhoChange}
+                            />
+                        </View>
                         
-                        <Text className="text-red-500 mb-1">{errorDistrict}</Text>
+                        
                         <TextInput
                             className="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="text"
@@ -328,6 +377,7 @@ const CheckList = ({ navigation }) => {
                                 </TouchableOpacity>
                             ))}
                         </View>
+                        <Text className="text-red-500 mb-1">{errorPaymentTime}</Text>
                         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                             <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{date.toLocaleDateString()}</Text>
                         </TouchableOpacity>
@@ -339,11 +389,11 @@ const CheckList = ({ navigation }) => {
                         />}
                         <View className='my-2'>
                             <Text className='text-base font-bold'>Chọn ảnh</Text>
-                            <ImagePickerComponent setImageBase64={setImageBase64}/>
-                            {imageBase64 && (
+                            <ImagePickerComponent setImage={setImage}/>
+                            {image && (
                                 <View className='flex items-center justify-center'>
                                     <Image
-                                        source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+                                        source={{ uri: image }}
                                         className='w-40 h-40 rounded-md'
                                     />
                                 </View>
@@ -367,9 +417,12 @@ const CheckList = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                     {errorName && <ToastMesssage message={errorName} time={1500} />}
-                    {errorDistrict && <ToastMesssage message={errorDistrict} time={1500} />}
+                    {errorQuan && <ToastMesssage message={errorQuan} time={1500} />}
+                    {errorPhuong && <ToastMesssage message={errorPhuong} time={1500} />}
                     {errorPhoneNumber && <ToastMesssage message={errorPhoneNumber} time={1500} />}
                     {errorAddress && <ToastMesssage message={errorAddress} time={1500} />}
+                    {errorPaymentTime && <ToastMesssage message={errorPaymentTime} time={1500} />}
+                    {errorLocation && <ToastMesssage message={errorLocation} time={1500} />}
                     {message && <ToastMesssage message={message} time={1500} />}
                 </View>
             </ScrollView>

@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput } from 'react-native'
+import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput, Image } from 'react-native'
 import React, { useCallback, useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
@@ -15,6 +15,9 @@ const History = ({ navigation }) => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [endOfList, setEndOfList] = useState(false);
+  const [quan, setQuan] = useState([]);
+  const [phuong, setPhuong] = useState([]);
+  const [pho, setPho] = useState([]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -43,6 +46,7 @@ const History = ({ navigation }) => {
       if (newData.checklistSubmissions.length === 0) {
           setEndOfList(true);
       } else {
+
           setHistories(prevWorkList => [...prevWorkList, ...newData.checklistSubmissions]);
           setPage(prevPage => prevPage + 1);
       }
@@ -96,12 +100,14 @@ const History = ({ navigation }) => {
             </Text>
             <Text className="text-lg font-bold mt-5">Tên Khách Hàng:</Text>
             <Text className="text-base mt-1">{history.customerName}</Text>
-            <Text className="text-lg font-bold mt-5">Quận/Huyện:</Text>
-            <Text className="text-base mt-1">{history.district}</Text>
+            <Text className="text-lg font-bold mt-5">Địa chỉ:</Text>
+            <Text className="text-base mt-1">{history.address} 
+              {history.pho && history.pho.tenPho && `, ${history.pho.tenPho}`}
+              {history.phuong && history.phuong.tenPhuong && `, ${history.phuong.tenPhuong}`}
+              {history.quan && history.quan.tenQuan && `, ${history.quan.tenQuan}`}
+            </Text>
             <Text className="text-lg font-bold mt-5">Số Điện Thoại:</Text>
             <Text className="text-base mt-1">{history.phoneNumber}</Text>
-            <Text className="text-lg font-bold mt-5">Địa Chỉ:</Text>
-            <Text className="text-base mt-1">{history.address}</Text>
             <Text className="text-lg font-bold mt-5">Tài khoản vnpt:</Text>
             <Text className="text-base mt-1">{history.vnptAccount || "Không có tài khoản"}</Text>
             <Text className="text-lg font-bold mt-5">Ngày Kiểm Tra:</Text>
@@ -114,6 +120,17 @@ const History = ({ navigation }) => {
                 <Text className="text-base mb-2" key={index}>- {item.name}</Text> // Thay `item.name` bằng trường thông tin bạn muốn hiển thị về mục kiểm tra
               ))}
             </View>
+            <Text className="text-lg font-bold mt-3">Loaction:</Text>
+            <Text className="text-base mt-1">{history.location.latitude}, {history.location.longitude}</Text>
+            {history.image && (
+              <View className='flex items-center justify-center mt-5'>
+              <Image
+                source={{ uri: domain + history.image }}
+                className='w-40 h-40 rounded-md'
+              />
+            </View>
+            )}
+            
           </View>
         ))}
         {loading && <Ionicons name="reload-circle-outline" size={40} color="gray" />}

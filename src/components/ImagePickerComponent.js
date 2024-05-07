@@ -2,8 +2,9 @@
 import React, { useState, useEffect  } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
-const ImagePickerComponent = ({ setImageBase64 }) => {
+const ImagePickerComponent = ({ setImage }) => {
 
   useEffect(() => {
     (async () => {
@@ -20,11 +21,10 @@ const ImagePickerComponent = ({ setImageBase64 }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-      base64: true,
     });
 
     if (!result.canceled) {
-      setImageBase64(result.assets[0].base64);
+      setImage(result.assets[0].uri);
     }
   };
 
@@ -33,11 +33,10 @@ const ImagePickerComponent = ({ setImageBase64 }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-      base64: true,
     });
 
     if (!result.canceled) {
-      setImageBase64(result.assets[0].base64);
+      setImage(result.assets[0].uri);
     }
   };
 

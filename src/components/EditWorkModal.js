@@ -11,7 +11,9 @@ const EditWorkModal = ({ visible, work, onSave, onClose }) => {
         setEditedWork({ ...work });
     }, [work]);
     const handleCloseModal = () => {
+        console.log(editedWork)
         setEditedWork({ name: '' }); // Đặt lại giá trị của trường "name" về rỗng
+        
         onClose(); // Gọi hàm onClose để đóng modal
     };
     return (

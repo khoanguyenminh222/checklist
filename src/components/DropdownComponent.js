@@ -24,7 +24,7 @@ const DropdownComponent = ({ labelField, valueField, placeholder, data, onChange
       className="border rounded w-full py-1 px-3 text-gray-200 leading-tight focus:outline-none focus:shadow-outline"
       labelField={labelField}
       valueField={valueField}
-      maxHeight={300}
+      maxHeight={250}
       placeholder={placeholder}
       search
       searchPlaceholder='Tìm kiếm...'

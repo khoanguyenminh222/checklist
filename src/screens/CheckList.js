@@ -26,6 +26,7 @@ const CheckList = ({ navigation }) => {
     const [address, setAddress] = useState('');
     const [vnptAccount, setVnptAccount] = useState('');
     const [date, setDate] = useState(new Date());
+    const [dateExpired, setDateExpired] = useState(new Date());
     const [note, setNote] = useState('');
     const [errorName, setErrorName] = useState('');
     const [errorQuan, setErrorQuan] = useState('');
@@ -50,10 +51,30 @@ const CheckList = ({ navigation }) => {
         setPhuongList([])
         // Cập nhật quận được chọn
         setSelectedQuan(value);
-        // Lấy danh sách phường dựa trên quận đã chọn và cập nhật state
-        const phuongData = await axios.get(`${domain}${addressRoute}/phuong/${value}`)
-        setPhuongList(phuongData.data);
-        
+        try {
+            // Lấy danh sách phường dựa trên quận đã chọn và cập nhật state
+            if (user && user.codeDistrict) {
+                const phuongInfoObject = [];
+                const phuongResponse = await axios.get(`${domain}${addressRoute}/phuong/${value}`);
+                const phuongData = phuongResponse.data;
+                // Lọc các ID phường trong mỗi quận dựa trên user.codeDistrict
+                const quanPhuongIds = user.codeDistrict
+                    .filter(item => item.idQuan === value)
+                    .map(item => item.idPhuong);
+                // Lọc thông tin phường dựa trên các ID phường đã lấy được
+                const filteredPhuongData = phuongData.filter(phuong => quanPhuongIds.includes(phuong.idPhuong));
+
+                // Lưu thông tin phường
+                phuongInfoObject.push(...filteredPhuongData);
+                setPhuongList(phuongInfoObject);
+            } else {
+                const phuongData = await axios.get(`${domain}${addressRoute}/phuong/${value}`)
+                setPhuongList(phuongData.data);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
     };
     const handlePhuongChange = async (value) => {
         setPhoList([])
@@ -67,7 +88,7 @@ const CheckList = ({ navigation }) => {
     };
 
     const handleLocationChange = (latitude, longitude) => {
-        if (latitude && longitude){
+        if (latitude && longitude) {
             setCurrentLatitude(latitude); // Cập nhật vĩ độ
             setCurrentLongitude(longitude); // Cập nhật kinh độ
         }
@@ -76,7 +97,7 @@ const CheckList = ({ navigation }) => {
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate;
         setShowDatePicker(false);
-        setDate(currentDate);
+        setDateExpired(currentDate);
     };
 
     const onRefresh = useCallback(() => {
@@ -110,7 +131,14 @@ const CheckList = ({ navigation }) => {
     const fetchQuan = async () => {
         try {
             const response = await axios.get(`${domain}${addressRoute}/quan`);
-            setQuanList(response.data);
+
+            if (user && user.codeDistrict) {
+                const uniqueQuanIds = [...new Set(user.codeDistrict.map(item => item.idQuan))];
+                const filteredQuanData = response.data.filter(quan => uniqueQuanIds.includes(quan.idQuan));
+                setQuanList(filteredQuanData);
+            } else {
+                setQuanList(response.data);
+            }
         } catch (error) {
             console.error('Error fetching quan list:', error);
         }
@@ -132,7 +160,7 @@ const CheckList = ({ navigation }) => {
         }
     }, [navigation]);
 
-    const networks = ['Viettel', 'SCTV', 'FPT', 'Nhà mạng khác'];
+    const networks = ['VNPT', 'Viettel', 'SCTV', 'FPT', 'Nhà mạng khác'];
     const handleNetworkSelection = (network) => {
         if (selectedNetwork === network) {
             // Nếu mạng đã được chọn trước đó, gỡ bỏ chọn
@@ -145,7 +173,7 @@ const CheckList = ({ navigation }) => {
 
     const times = ['Theo tháng', 'Theo quý', 'Theo năm'];
     const handlePaymentTimeSelection = (time) => {
-        if(paymentTime === time){
+        if (paymentTime === time) {
             setPaymentTime(null);
         } else {
             setPaymentTime(time);
@@ -198,19 +226,25 @@ const CheckList = ({ navigation }) => {
             } else {
                 setMessage('');
             }
+            if (!selectedNetwork) {
+                setMessage('Vui lòng chọn nhà mạng');
+                return;
+            } else {
+                setMessage('');
+            }
             if (!paymentTime) {
-                setErrorPaymentTime('Vui lòng chọn thời gian đóng');
+                setErrorPaymentTime('Vui lòng chọn thời gian đã đóng');
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorPaymentTime('')
             }
-            if(!currentLatitude && !currentLongitude){
+            if (!currentLatitude && !currentLongitude) {
                 setErrorLocation('Không thể truy cập vị trí hiện tại');
                 return;
             } else {
                 setErrorLocation('')
             }
-            
+
             // Dữ liệu để gửi đi
             const formData = new FormData();
             formData.append('customerName', name);
@@ -224,18 +258,18 @@ const CheckList = ({ navigation }) => {
             formData.append('networks', selectedNetwork || '');
             formData.append('paymentTime', paymentTime);
             formData.append('date', date.toString());
+            formData.append('dateExpired', dateExpired.toString());
             formData.append('note', note);
             formData.append('userId', user._id);
             formData.append('location[latitude]', currentLatitude);
             formData.append('location[longitude]', currentLongitude);
-            if(image){
+            if (image) {
                 formData.append('image', {
                     uri: image,
                     name: 'image.jpg',
                     type: 'image/jpeg',
                 });
             }
-            console.log(formData._parts)
             const response = await axios.post(`${domain}${listSubmitRoute}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -253,6 +287,30 @@ const CheckList = ({ navigation }) => {
         }
         // Thực hiện các thao tác khác như lưu dữ liệu vào cơ sở dữ liệu, gửi dữ liệu đến máy chủ, vv.
     };
+    useEffect(() => {
+        const notifyDateExpired = async () => {
+            try {
+                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`);
+                const listSubmits = response.data;
+                // Lấy ra ngày hiện tại
+                const currentDate = new Date();
+                // Tính toán ngày hết hạn chỉ còn lại 15 ngày cho mỗi phần tử trong mảng
+                const dataWithExpirationDate = listSubmits.map(item => {
+                    const expirationDate = new Date(item.dateExpired);
+                    const timeDifference = expirationDate.getTime() - currentDate.getTime();
+                    const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+                    item.daysLeft = daysDifference;
+                    return item;
+                });
+                // Lọc ra các phần tử chỉ còn lại 15 ngày hoặc ít hơn
+                const itemsWith15DaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15);
+                console.log("test",itemsWith15DaysLeft)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        notifyDateExpired();
+    },[])
     return (
         <SafeAreaView className="flex-1">
             <StatusBar style="dark" />
@@ -303,8 +361,8 @@ const CheckList = ({ navigation }) => {
                                 onChange={handlePhoChange}
                             />
                         </View>
-                        
-                        
+
+
                         <TextInput
                             className="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="text"
@@ -322,7 +380,7 @@ const CheckList = ({ navigation }) => {
                             keyboardType='phone-pad'
                         />
                         <Text className="text-red-500 mb-1">{errorPhoneNumber}</Text>
-                        
+
                         <TextInput
                             className="border rounded w-full py-2 px-3 mb-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             type="text"
@@ -340,7 +398,7 @@ const CheckList = ({ navigation }) => {
                             (<Item key={work._id} work={work} index={workList.filter(work => work.status === 0).indexOf(work)} onCheckboxChange={handleCheckboxChange} />)
                         )}
                         <View className='my-2'>
-                            <Text className="text-base font-bold">Nhà Mạng</Text>
+                            <Text className="text-base font-bold">Nhà Mạng (*)</Text>
                             {networks.map((network, index) => (
                                 <TouchableOpacity
                                     key={index}
@@ -359,7 +417,7 @@ const CheckList = ({ navigation }) => {
                             ))}
                         </View>
                         <View className='my-2'>
-                            <Text className="text-base font-bold">Thời gian đóng (*)</Text>
+                            <Text className="text-base font-bold">Thời gian đã đóng (*)</Text>
                             {times.map((time, index) => (
                                 <TouchableOpacity
                                     key={index}
@@ -378,18 +436,19 @@ const CheckList = ({ navigation }) => {
                             ))}
                         </View>
                         <Text className="text-red-500 mb-1">{errorPaymentTime}</Text>
+                        <Text className='text-base font-bold'>Thời gian hết hạn (*)</Text>
                         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                            <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{date.toLocaleDateString()}</Text>
+                            <Text className="border border-gray-300 my-2 text-lg leading-9 p-2">{dateExpired.toLocaleDateString()}</Text>
                         </TouchableOpacity>
                         {showDatePicker && <DateTimePicker
-                            value={date}
+                            value={dateExpired}
                             mode={'date'}
                             onChange={onChange}
                             display={'default'}
                         />}
                         <View className='my-2'>
                             <Text className='text-base font-bold'>Chọn ảnh</Text>
-                            <ImagePickerComponent setImage={setImage}/>
+                            <ImagePickerComponent setImage={setImage} />
                             {image && (
                                 <View className='flex items-center justify-center'>
                                     <Image
@@ -399,7 +458,7 @@ const CheckList = ({ navigation }) => {
                                 </View>
                             )}
                         </View>
-                        
+
                         <TextInput
                             value={note}
                             onChangeText={(text) => setNote(text)}
@@ -409,9 +468,9 @@ const CheckList = ({ navigation }) => {
                             numberOfLines={4}
                         />
                         <View className='mb-2'>
-                            <LocationComponent onLocationChange={handleLocationChange}/>
+                            <LocationComponent onLocationChange={handleLocationChange} />
                         </View>
-                        
+
                         <TouchableOpacity onPress={handleSubmit} className="bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline items-center">
                             <Text className='text-white font-bold text-base'>Gửi</Text>
                         </TouchableOpacity>

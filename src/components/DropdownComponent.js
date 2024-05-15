@@ -21,7 +21,7 @@ const DropdownComponent = ({ labelField, valueField, placeholder, data, onChange
   }
   return (
     <Dropdown
-      className="border rounded w-full py-1 px-3 text-gray-200 leading-tight focus:outline-none focus:shadow-outline"
+      className="border rounded w-full py-1 px-3 text-gray-200 leading-tight focus:outline-none focus:shadow-outline mb-1"
       labelField={labelField}
       valueField={valueField}
       maxHeight={250}

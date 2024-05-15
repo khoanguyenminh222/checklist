@@ -91,8 +91,6 @@ const StackNavigator = () => {
       }}
     >
       <Stack.Screen name="Login" component={Login} />
-      {/* <Stack.Screen name="CheckList" component={CheckList} />
-      <Stack.Screen name="WorkList" component={WorkList} /> */}
       <Stack.Screen name="MainAdmin" component={TabNavigatorAdmin} />
       <Stack.Screen name="MainUser" component={TabNavigatorUser} />
     </Stack.Navigator>

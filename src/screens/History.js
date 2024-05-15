@@ -42,7 +42,6 @@ const History = ({ navigation }) => {
     try {
       const response = await axios.get(`${domain}${listSubmitRoute}?page=${page}&search=${search}&role=${user.role}&userId=${user._id}`); // lấy ra danh sánh listSubmit
       const newData = response.data;
-      console.log(newData)
       if (newData.checklistSubmissions.length === 0) {
           setEndOfList(true);
       } else {
@@ -112,6 +111,10 @@ const History = ({ navigation }) => {
             <Text className="text-base mt-1">{history.vnptAccount || "Không có tài khoản"}</Text>
             <Text className="text-lg font-bold mt-5">Ngày Kiểm Tra:</Text>
             <Text className="text-base mt-1">{new Date(history.date).toLocaleDateString()}</Text>
+            <Text className="text-lg font-bold mt-5">Ngày hết hạn:</Text>
+            <Text className="text-base mt-1">{new Date(history.dateExpired).toLocaleDateString()}</Text>
+            <Text className="text-lg font-bold mt-5">Nhà mạng:</Text>
+            <Text className="text-base mt-1">{history.networks || "Không có ghi chú"}</Text>
             <Text className="text-lg font-bold mt-5">Ghi Chú:</Text>
             <Text className="text-base mt-1">{history.note || "Không có ghi chú"}</Text>
             <Text className="text-lg font-bold mt-5">Các Mục Đã Kiểm Tra:</Text>

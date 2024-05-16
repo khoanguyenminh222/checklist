@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, TouchableOpacity, Image } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, TouchableOpacity, Image, Alert } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import DropdownComponent from '../components/DropdownComponent';
@@ -53,7 +53,7 @@ const CheckList = ({ navigation }) => {
         setSelectedQuan(value);
         try {
             // Lấy danh sách phường dựa trên quận đã chọn và cập nhật state
-            if (user && user.codeDistrict) {
+            if (user && user.codeDistrict && Array.isArray(user.codeDistrict) && user.codeDistrict.length > 0) {
                 const phuongInfoObject = [];
                 const phuongResponse = await axios.get(`${domain}${addressRoute}/phuong/${value}`);
                 const phuongData = phuongResponse.data;
@@ -131,8 +131,7 @@ const CheckList = ({ navigation }) => {
     const fetchQuan = async () => {
         try {
             const response = await axios.get(`${domain}${addressRoute}/quan`);
-
-            if (user && user.codeDistrict) {
+            if (user && user.codeDistrict && Array.isArray(user.codeDistrict) && user.codeDistrict.length > 0) {
                 const uniqueQuanIds = [...new Set(user.codeDistrict.map(item => item.idQuan))];
                 const filteredQuanData = response.data.filter(quan => uniqueQuanIds.includes(quan.idQuan));
                 setQuanList(filteredQuanData);
@@ -290,7 +289,9 @@ const CheckList = ({ navigation }) => {
     useEffect(() => {
         const notifyDateExpired = async () => {
             try {
-                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`);
+                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`,{
+                    params: {role: user.role, userId: user._id}
+                });
                 const listSubmits = response.data;
                 // Lấy ra ngày hiện tại
                 const currentDate = new Date();
@@ -304,7 +305,25 @@ const CheckList = ({ navigation }) => {
                 });
                 // Lọc ra các phần tử chỉ còn lại 15 ngày hoặc ít hơn
                 const itemsWith15DaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15);
-                console.log("test",itemsWith15DaysLeft)
+                // Điều hướng đến màn hình ListWithExpirationDate và truyền dữ liệu
+                if (itemsWith15DaysLeft.length > 0) {
+                    Alert.alert(
+                        'Thông báo',
+                        `Có ${itemsWith15DaysLeft.length} mục sắp hết hạn trong 15 ngày hoặc ít hơn.`,
+                        [
+                            {
+                                text: 'Hủy',
+                                onPress: () => console.log('Người dùng đã hủy thông báo'),
+                                style: 'cancel'
+                            },
+                            {
+                                text: 'Xem chi tiết',
+                                onPress: () => navigation.navigate('ListWithExpirationDate', { itemsWith15DaysLeft })
+                            }
+                        ],
+                        { cancelable: false }
+                    );
+                }
             } catch (error) {
                 console.log(error)
             }

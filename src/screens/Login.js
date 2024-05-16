@@ -71,7 +71,7 @@ const Login = ({ navigation }) => {
           await AsyncStorage.setItem('password', password);
         }
 
-        if (user.role === 'admin') {
+        if (user.role === 'admin' || user.role === 'manager') {
           navigation.navigate('MainAdmin'); // Chuyển đến màn hình Home sau khi đăng nhập thành công
         } else {
           navigation.navigate('MainUser');

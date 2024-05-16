@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
 import { domain, listSubmitRoute } from '../api/BaseURL';
+import MapDisplay from '../components/MapDisplay';
 
 const History = ({ navigation }) => {
   const { user, isLogin } = useUser();
@@ -43,11 +44,11 @@ const History = ({ navigation }) => {
       const response = await axios.get(`${domain}${listSubmitRoute}?page=${page}&search=${search}&role=${user.role}&userId=${user._id}`); // lấy ra danh sánh listSubmit
       const newData = response.data;
       if (newData.checklistSubmissions.length === 0) {
-          setEndOfList(true);
+        setEndOfList(true);
       } else {
 
-          setHistories(prevWorkList => [...prevWorkList, ...newData.checklistSubmissions]);
-          setPage(prevPage => prevPage + 1);
+        setHistories(prevWorkList => [...prevWorkList, ...newData.checklistSubmissions]);
+        setPage(prevPage => prevPage + 1);
       }
     } catch (error) {
       console.error('Error fetching work list:', error);
@@ -66,8 +67,8 @@ const History = ({ navigation }) => {
   };
 
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
-      const paddingToBottom = 20;
-      return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
   const handelSearch = async (text) => {
@@ -78,7 +79,7 @@ const History = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar style="dark" />
       <Header screenName="History" navigation={navigation} />
       <TextInput className="h-14 border-b border-gray-200 text-xl px-2"
@@ -92,7 +93,7 @@ const History = ({ navigation }) => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {histories.map((history, index) => (
-          <View key={index} className="px-5 pb-5 mt-5 mb-2 bg-gray-100 rounded-2xl w-11/12">
+          <View key={index} className="px-5 pb-5 mt-5 mb-2 bg-white rounded-2xl w-11/12">
             <Text className="text-lg font-bold mt-5">Nhân viên:</Text>
             <Text className="text-base mt-1">
               {history.userId.fullname} - {history.userId.username}
@@ -100,7 +101,7 @@ const History = ({ navigation }) => {
             <Text className="text-lg font-bold mt-5">Tên Khách Hàng:</Text>
             <Text className="text-base mt-1">{history.customerName}</Text>
             <Text className="text-lg font-bold mt-5">Địa chỉ:</Text>
-            <Text className="text-base mt-1">{history.address} 
+            <Text className="text-base mt-1">{history.address}
               {history.pho && history.pho.tenPho && `, ${history.pho.tenPho}`}
               {history.phuong && history.phuong.tenPhuong && `, ${history.phuong.tenPhuong}`}
               {history.quan && history.quan.tenQuan && `, ${history.quan.tenQuan}`}
@@ -123,17 +124,18 @@ const History = ({ navigation }) => {
                 <Text className="text-base mb-2" key={index}>- {item.name}</Text> // Thay `item.name` bằng trường thông tin bạn muốn hiển thị về mục kiểm tra
               ))}
             </View>
-            <Text className="text-lg font-bold mt-3">Loaction:</Text>
-            <Text className="text-base mt-1">{history.location.latitude}, {history.location.longitude}</Text>
+
             {history.image && (
               <View className='flex items-center justify-center mt-5'>
-              <Image
-                source={{ uri: domain + history.image }}
-                className='w-40 h-40 rounded-md'
-              />
-            </View>
+                <Image
+                  source={{ uri: domain + history.image }}
+                  className='w-40 h-40 rounded-md'
+                />
+              </View>
             )}
-            
+            <Text className="text-lg font-bold mt-3">Location:</Text>
+            <Text className="text-base mt-1">{history.location.latitude}, {history.location.longitude}</Text>
+            <MapDisplay latitude={history.location.latitude} longitude={history.location.longitude} />
           </View>
         ))}
         {loading && <Ionicons name="reload-circle-outline" size={40} color="gray" />}

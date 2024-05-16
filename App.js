@@ -12,6 +12,7 @@ import WorkList from './src/screens/WorkList';
 import Profile from './src/screens/Profile';
 import Report from './src/screens/Report';
 import History from './src/screens/History';
+import ListWithExpirationDate from './src/screens/ListWithExpirationDate';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -45,6 +46,12 @@ const TabNavigatorAdmin = () => {
           return <Ionicons name="newspaper-outline" color={color} size={size}></Ionicons>
         }
       }} />
+      <Tab.Screen name='ListWithExpirationDate' component={ListWithExpirationDate} options={{
+        title: "Sắp đến hạn",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="newspaper-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
       <Tab.Screen name='Report' component={Report} options={{
         title: "Report",
         tabBarIcon: ({ color, size }) => {
@@ -70,6 +77,18 @@ const TabNavigatorUser = () => {
         title: "History",
         tabBarIcon: ({ color, size }) => {
           return <Ionicons name="newspaper-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
+      <Tab.Screen name='ListWithExpirationDate' component={ListWithExpirationDate} options={{
+        title: "Sắp đến hạn",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="newspaper-outline" color={color} size={size}></Ionicons>
+        }
+      }} />
+      <Tab.Screen name='Report' component={Report} options={{
+        title: "Report",
+        tabBarIcon: ({ color, size }) => {
+          return <Ionicons name="document-outline" color={color} size={size}></Ionicons>
         }
       }} />
       <Tab.Screen name='Profile' component={Profile} options={{

@@ -13,7 +13,7 @@ import { shareAsync } from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 
 const Report = ({ navigation }) => {
-  const { isLogin } = useUser();
+  const { user, isLogin } = useUser();
   const [refreshing, setRefreshing] = useState(false);
   const [dateStart, setDateStart] = useState(new Date());
   const [showDatePickerStart, setShowDatePickerStart] = useState(false)
@@ -197,21 +197,26 @@ const Report = ({ navigation }) => {
           </TouchableOpacity>
           {message && <ToastMesssage message={message} key={toastKey} time={10000} />}
         </View>
+        {(user.role === 'admin' || user.role === 'manager') && 
+          <View className="w-11/12 bg-white px-5 py-5 rounded-2xl mb-3">
+            <Text className="text-2xl font-bold text-center mb-5">Nhập người dùng</Text>
+            <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFilePick}>
+              <Text className="text-white text-lg font-semibold">Chọn tệp .xlsx</Text>
+            </TouchableOpacity>
+            {selectedFile && (
+              <View className="mt-5">
+                <Text>Tên tệp: {selectedFile.assets[0].name}</Text>
+                <Text>Kích thước: {selectedFile.assets[0].size} bytes</Text>
+                <Text>Loại: Spreadsheet</Text>
+              </View>
+            )}
+            <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFileSubmit} disabled={!selectedFile}>
+              <Text className="text-white text-lg font-semibold">Gửi</Text>
+            </TouchableOpacity>
+          </View>
+        }
         <View className="w-11/12 bg-white px-5 py-5 rounded-2xl mb-3">
-          <Text className="text-2xl font-bold text-center mb-5">Nhập người dùng</Text>
-          <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFilePick}>
-            <Text className="text-white text-lg font-semibold">Chọn tệp .xlsx</Text>
-          </TouchableOpacity>
-          {selectedFile && (
-            <View className="mt-5">
-              <Text>Tên tệp: {selectedFile.assets[0].name}</Text>
-              <Text>Kích thước: {selectedFile.assets[0].size} bytes</Text>
-              <Text>Loại: Spreadsheet</Text>
-            </View>
-          )}
-          <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFileSubmit} disabled={!selectedFile}>
-            <Text className="text-white text-lg font-semibold">Gửi</Text>
-          </TouchableOpacity>
+          
         </View>
       </ScrollView>
     </SafeAreaView>

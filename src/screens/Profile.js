@@ -188,6 +188,16 @@ const Profile = ({ navigation }) => {
 
   // Hàm cập nhật khu vực
   const handelChangeDistrict = () => {
+    // Kiểm tra xem có quận nào có giá trị nhưng không có phường nào được chọn
+    const hasInvalidSelection = selectedAreas.some(item => item.quan !== null && item.phuongs.some(phuong => phuong === null));
+    // Kiểm tra từ index 1 trở đi, nếu quận null và phường null thì báo lỗi
+    const hasInvalidSelectionFromIndex1 = selectedAreas.slice(1).some(item => item.quan === null && item.phuongs.some(phuong => phuong === null));
+    if (hasInvalidSelection || hasInvalidSelectionFromIndex1) {
+      // Hiển thị thông báo lỗi nếu phát hiện quận có giá trị mà không có phường
+      setMessageDropdown('Vui lòng chọn phường');
+      setToastKey(prevKey => prevKey + 1);
+      return;
+    }
     Alert.alert(
       "Xác nhận",
       "Bạn có chắc muốn cập nhật khu vực không?",

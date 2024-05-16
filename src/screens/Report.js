@@ -4,13 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import Header from '../components/Header';
 import { useUser } from '../UserProvider';
-import { domain, listSubmitRoute, userRoute } from '../api/BaseURL';
+import { addressRoute, domain, listSubmitRoute, userRoute } from '../api/BaseURL';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ToastMesssage from '../components/ToastMessage';
 import * as FileSystem from 'expo-file-system';
 import * as Notifications from 'expo-notifications';
 import { shareAsync } from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
+import DropdownComponent from '../components/DropdownComponent';
 
 const Report = ({ navigation }) => {
   const { user, isLogin } = useUser();
@@ -57,7 +58,11 @@ const Report = ({ navigation }) => {
     try {
       const response = await axios.post(`${domain}${listSubmitRoute}/export`, {
         fromDate: dateStart,
-        endDate: dateEnd
+        endDate: dateEnd,
+        selectedQuan: selectedQuan,
+        selectedPhuong: selectedPhuong,
+        userId: user._id,
+        role: user.role
       });
       if (response.status >= 200 && response.status < 300) {
         const startDate = dateStart.toLocaleDateString().replace(/\//g, '-'); // Chuyển ngày bắt đầu thành chuỗi và thay thế dấu /
@@ -145,7 +150,7 @@ const Report = ({ navigation }) => {
         if (response.status >= 200 && response.status < 300) {
           setMessage(response.data.message);
           setToastKey(prevKey => prevKey + 1);
-        }else{
+        } else {
           setMessage(response.data.message);
           setToastKey(prevKey => prevKey + 1);
         }
@@ -158,6 +163,64 @@ const Report = ({ navigation }) => {
     } else {
       Alert.alert('Thông báo', 'Vui lòng chọn một tệp trước khi gửi.');
     }
+  };
+
+  // chọn phường quận
+  const [quanList, setQuanList] = useState([]);
+  const [selectedQuan, setSelectedQuan] = useState(null);
+  const [phuongList, setPhuongList] = useState([]);
+  const [selectedPhuong, setSelectedPhuong] = useState(null);
+
+  useEffect(() => {
+    fetchQuan();
+  }, []);
+
+  const fetchQuan = async () => {
+    try {
+      const response = await axios.get(`${domain}${addressRoute}/quan`);
+      if (user && user.codeDistrict && Array.isArray(user.codeDistrict) && user.codeDistrict.length > 0) {
+        const uniqueQuanIds = [...new Set(user.codeDistrict.map(item => item.idQuan))];
+        const filteredQuanData = response.data.filter(quan => uniqueQuanIds.includes(quan.idQuan));
+        setQuanList(filteredQuanData);
+      } else {
+        setQuanList(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching quan list:', error);
+    }
+  }
+
+  const handleQuanChange = async (value) => {
+    setPhuongList([])
+    // Cập nhật quận được chọn
+    setSelectedQuan(value);
+    try {
+      // Lấy danh sách phường dựa trên quận đã chọn và cập nhật state
+      if (user && user.codeDistrict && Array.isArray(user.codeDistrict) && user.codeDistrict.length > 0) {
+        const phuongInfoObject = [];
+        const phuongResponse = await axios.get(`${domain}${addressRoute}/phuong/${value}`);
+        const phuongData = phuongResponse.data;
+        // Lọc các ID phường trong mỗi quận dựa trên user.codeDistrict
+        const quanPhuongIds = user.codeDistrict
+          .filter(item => item.idQuan === value)
+          .map(item => item.idPhuong);
+        // Lọc thông tin phường dựa trên các ID phường đã lấy được
+        const filteredPhuongData = phuongData.filter(phuong => quanPhuongIds.includes(phuong.idPhuong));
+
+        // Lưu thông tin phường
+        phuongInfoObject.push(...filteredPhuongData);
+        setPhuongList(phuongInfoObject);
+      } else {
+        const phuongData = await axios.get(`${domain}${addressRoute}/phuong/${value}`)
+        setPhuongList(phuongData.data);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+  };
+  const handlePhuongChange = async (value) => {
+    setSelectedPhuong(value);
   };
 
   return (
@@ -191,13 +254,26 @@ const Report = ({ navigation }) => {
             onChange={onChangeDateEnd}
             display={'default'}
           />}
-
+          <DropdownComponent
+            labelField="tenQuan"
+            valueField="idQuan"
+            placeholder="Chọn quận"
+            data={quanList}
+            onChange={handleQuanChange}
+          />
+          <DropdownComponent
+            labelField="tenPhuong"
+            valueField="idPhuong"
+            placeholder="Chọn phường"
+            data={phuongList}
+            onChange={handlePhuongChange}
+          />
           <TouchableOpacity className="mt-5 bg-blue-500 p-3 rounded-md items-center" onPress={handleExport}>
             <Text className="text-white text-lg font-semibold">Xuất báo cáo</Text>
           </TouchableOpacity>
           {message && <ToastMesssage message={message} key={toastKey} time={10000} />}
         </View>
-        {(user.role === 'admin' || user.role === 'manager') && 
+        {user && (user.role === 'admin' || user.role === 'manager') &&
           <View className="w-11/12 bg-white px-5 py-5 rounded-2xl mb-3">
             <Text className="text-2xl font-bold text-center mb-5">Nhập người dùng</Text>
             <TouchableOpacity className="mt-5 bg-blue-400 p-3 rounded-md items-center" onPress={handleFilePick}>
@@ -215,9 +291,6 @@ const Report = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         }
-        <View className="w-11/12 bg-white px-5 py-5 rounded-2xl mb-3">
-          
-        </View>
       </ScrollView>
     </SafeAreaView>
   )

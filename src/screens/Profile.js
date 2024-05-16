@@ -277,7 +277,7 @@ const Profile = ({ navigation }) => {
           {user && (
             <View>
               <View className="items-center mb-5">
-                <Text className="text-xl font-bold mb-3">Username: {user.username}</Text>
+                <Text className="text-xl font-bold mb-3">{user.role==="user" ? <>Người dùng: </>: <>Quản lý:</>} {user.username}</Text>
                 <Text className="text-base mb-1">Họ tên: {user.fullname}</Text>
                 <Text className="text-base">Huyện: {user.district}</Text>
               </View>

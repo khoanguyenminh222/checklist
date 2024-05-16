@@ -1,5 +1,5 @@
-import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput, Image } from 'react-native'
-import React, { useCallback, useState, useEffect } from 'react'
+import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity } from 'react-native'
+import React, { useCallback, useState, useEffect, useRef  } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons'
@@ -72,22 +72,35 @@ const History = ({ navigation }) => {
   };
 
   const handelSearch = async (text) => {
-    setSearch(text);
+    const trimmedText = text.trim();
+    setSearch(trimmedText)
     setPage(1); // Reset trang về trang đầu tiên khi thực hiện tìm kiếm mới
     setHistories([]); // Xóa lịch sử hiện tại khi thực hiện tìm kiếm mới
-    fetchListSubmit(); // Gọi hàm fetchListSubmit để lấy dữ liệu mới
+    await fetchListSubmit(); // Gọi hàm fetchListSubmit để lấy dữ liệu mới
   }
+
+  // Tạo một tham chiếu sử dụng useRef
+  const scrollViewRef = useRef();
+
+  // Hàm để cuộn lại đầu trang
+  const scrollToTop = () => {
+      scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar style="dark" />
       <Header screenName="History" navigation={navigation} />
-      <TextInput className="h-14 border-b border-gray-200 text-xl px-2"
+      {/* <TextInput className="h-14 border-b border-gray-200 text-xl px-2"
         placeholder='Tìm kiếm'
         value={search}
         onChangeText={(text) => handelSearch(text)}
-      />
+      /> */}
+      <TouchableOpacity className="items-center" onPress={scrollToTop}>
+        <Ionicons name="arrow-up-circle-outline" size={40} color="black"></Ionicons>
+      </TouchableOpacity>
       <ScrollView
+        ref={scrollViewRef}
         onScroll={handleScroll}
         contentContainerStyle={{ alignItems: 'center', marginBottom: 20 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -113,7 +126,7 @@ const History = ({ navigation }) => {
             <Text className="text-lg font-bold mt-5">Ngày Kiểm Tra:</Text>
             <Text className="text-base mt-1">{new Date(history.date).toLocaleDateString()}</Text>
             <Text className="text-lg font-bold mt-5">Ngày hết hạn:</Text>
-            <Text className="text-base mt-1">{new Date(history.dateExpired).toLocaleDateString()}</Text>
+            <Text className="text-base mt-1 text-red-500">{new Date(history.dateExpired).toLocaleDateString()}</Text>
             <Text className="text-lg font-bold mt-5">Nhà mạng:</Text>
             <Text className="text-base mt-1">{history.networks || "Không có ghi chú"}</Text>
             <Text className="text-lg font-bold mt-5">Ghi Chú:</Text>
@@ -133,9 +146,8 @@ const History = ({ navigation }) => {
                 />
               </View>
             )}
-            <Text className="text-lg font-bold mt-3">Location:</Text>
-            <Text className="text-base mt-1">{history.location.latitude}, {history.location.longitude}</Text>
-            <MapDisplay latitude={history.location.latitude} longitude={history.location.longitude} />
+            <Text className="text-lg font-bold mt-3">Vị trí:</Text>
+            <MapDisplay latitude={history.location.latitude} longitude={history.location.longitude} isDraggable={false}/>
           </View>
         ))}
         {loading && <Ionicons name="reload-circle-outline" size={40} color="gray" />}

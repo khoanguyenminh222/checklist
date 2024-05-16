@@ -34,7 +34,7 @@ const LocationComponent = ({onLocationChange}) => {
   }
   return (
     <View className='mt-2'>
-      <Text>{text}</Text>
+      
     </View>
   );
 };

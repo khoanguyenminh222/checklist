@@ -12,6 +12,7 @@ import ToastMesssage from '../components/ToastMessage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ImagePickerComponent from '../components/ImagePickerComponent';
 import LocationComponent from '../components/LocationComponent';
+import MapDisplay from '../components/MapDisplay';
 
 const CheckList = ({ navigation }) => {
     const { user, isLogin } = useUser();
@@ -309,7 +310,7 @@ const CheckList = ({ navigation }) => {
                 if (itemsWith15DaysLeft.length > 0) {
                     Alert.alert(
                         'Thông báo',
-                        `Có ${itemsWith15DaysLeft.length} mục sắp hết hạn trong 15 ngày hoặc ít hơn.`,
+                        `Có ${itemsWith15DaysLeft.length} mục sắp hết hạn trong 15 ngày.`,
                         [
                             {
                                 text: 'Hủy',
@@ -330,6 +331,12 @@ const CheckList = ({ navigation }) => {
         }
         notifyDateExpired();
     },[])
+
+    const handleDragEnd = (e) => {
+        console.log(e)
+        setCurrentLatitude(e.nativeEvent.coordinate.latitude)
+        setCurrentLongitude(e.nativeEvent.coordinate.longitude)
+    };
     return (
         <SafeAreaView className="flex-1">
             <StatusBar style="dark" />
@@ -488,9 +495,10 @@ const CheckList = ({ navigation }) => {
                         />
                         <View className='mb-2'>
                             <LocationComponent onLocationChange={handleLocationChange} />
+                            
                         </View>
-
-                        <TouchableOpacity onPress={handleSubmit} className="bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline items-center">
+                        {currentLatitude && currentLongitude && <MapDisplay latitude={currentLatitude} longitude={currentLongitude} isDraggable={true} handleDragEnd={handleDragEnd}/>}
+                        <TouchableOpacity onPress={handleSubmit} className="bg-blue-500 h-10 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline items-center mt-3">
                             <Text className='text-white font-bold text-base'>Gửi</Text>
                         </TouchableOpacity>
                     </View>

@@ -2,7 +2,8 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-const MapDisplay = ({ latitude, longitude }) => {
+const MapDisplay = ({ latitude, longitude, isDraggable, handleDragEnd }) => {
+    
     return (
         <View style={styles.container}>
             <MapView
@@ -10,8 +11,8 @@ const MapDisplay = ({ latitude, longitude }) => {
                 initialRegion={{
                     latitude: latitude,
                     longitude: longitude,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
                 }}
             >
                 <Marker
@@ -19,6 +20,8 @@ const MapDisplay = ({ latitude, longitude }) => {
                         latitude: latitude,
                         longitude: longitude,
                     }}
+                    draggable={isDraggable}
+                    onDragEnd={handleDragEnd}
                 />
             </MapView>
         </View>

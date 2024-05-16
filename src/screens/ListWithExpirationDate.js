@@ -107,9 +107,8 @@ const ListWithExpirationDate = ({ navigation, route }) => {
                                 />
                             </View>
                         )}
-                        <Text className="text-lg font-bold mt-3">Location:</Text>
-                        <Text className="text-base mt-1">{item.location.latitude}, {item.location.longitude}</Text>
-                        <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} />
+                        <Text className="text-lg font-bold mt-3">Vị trí:</Text>
+                        <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false} />
                     </View>
                 ))}
             </ScrollView>

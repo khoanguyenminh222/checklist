@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StatusBar, ScrollView, Image, RefreshControl } from 'react-native'
+import { View, Text, SafeAreaView, StatusBar, ScrollView, Image, RefreshControl, TextInput } from 'react-native'
 import React, { useCallback, useState, useEffect } from 'react'
 import axios from 'axios';
 import Header from '../components/Header'
@@ -9,11 +9,12 @@ import { domain, listSubmitRoute } from '../api/BaseURL';
 const ListWithExpirationDate = ({ navigation, route }) => {
     const { user, isLogin } = useUser();
     const [itemsWith15DaysLeft, setItemsWith15DaysLeft] = useState([]);
+    const [search, setSearch] = useState('');
     useEffect(() => {
         const fetchItemExpired = async () => {
             try {
-                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`,{
-                    params: {role: user.role, userId: user._id}
+                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`, {
+                    params: { role: user.role, userId: user._id }
                 });
                 const listSubmits = response.data;
                 // Lấy ra ngày hiện tại
@@ -40,7 +41,7 @@ const ListWithExpirationDate = ({ navigation, route }) => {
             fetchItemExpired();
         }
     }, [route.params]); // Sử dụng route.params như dependency để kích hoạt useEffect khi route.params thay đổi
-    
+
     const [refreshing, setRefreshing] = useState(false);
     useEffect(() => {
         // Kiểm tra trạng thái đăng nhập khi màn hình được tạo
@@ -49,25 +50,39 @@ const ListWithExpirationDate = ({ navigation, route }) => {
         }
     }, [navigation]);
 
-      const onRefresh = useCallback(() => {
+    const onRefresh = useCallback(() => {
         setRefreshing(true);
         navigation.reset({
-          index: 0, // Chỉ định màn hình đầu tiên trong danh sách
-          routes: [{ name: 'ListWithExpirationDate' }],
+            index: 0, // Chỉ định màn hình đầu tiên trong danh sách
+            routes: [{ name: 'ListWithExpirationDate' }],
         });
         setTimeout(() => {
-          setRefreshing(false);
+            setRefreshing(false);
         }, 2000);
-      }, []);
+    }, []);
+
+    const handleSearchChange = (text) => {
+        setSearch(text);
+    };
     return (
         <SafeAreaView className="flex-1 bg-gray-100">
             <StatusBar style="dark" />
             <Header screenName="Sắp đến hạn" navigation={navigation} />
+            <View className="w-11/12 mx-auto flex flex-row justify-between items-center bg-white rounded-full px-4 py-2 shadow-md">
+                <TextInput
+                    className="flex-1 text-xl outline-none"
+                    placeholder='Tìm kiếm'
+                    value={search}
+                    onChangeText={handleSearchChange}
+                />
+            </View>
             <ScrollView
                 contentContainerStyle={{ alignItems: 'center', marginBottom: 20 }}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
-                {Array.isArray(itemsWith15DaysLeft) && itemsWith15DaysLeft.map((item, index) => (
+                {Array.isArray(itemsWith15DaysLeft) && itemsWith15DaysLeft
+                .filter(item => item.customerName.toLowerCase().includes(search.toLowerCase()))
+                .map((item, index) => (
                     <View key={index} className="px-5 pb-5 mt-5 mb-2 bg-white rounded-2xl w-11/12">
                         <Text className="text-lg font-bold mt-5">Nhân viên:</Text>
                         <Text className="text-base mt-1">

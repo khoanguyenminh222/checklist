@@ -105,18 +105,18 @@ const CustomerMap = ({ navigation }) => {
             const addressQuan = await axios.get(`${domain}${addressRoute}/quan/${selectedQuan}`)
             const addressPhuong = await axios.get(`${domain}${addressRoute}/phuong/getById/${selectedPhuong}`)
             const address = `${addressPhuong.data.tenPhuong}, ${addressQuan.data.tenQuan}`;
-            const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-                params: {
-                    q: address,
-                    format: 'json'
-                }
-            });
-            if (response.data && response.data.length > 0) {
-                const location = response.data[0];
+
+            const apiKey = "AIzaSyBgQ4XPNKZq6YYenbBEsBbSDCIHTmT7S-A";
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
+            const data = await response.json();
+            if (data.results.length > 0) {
+                const location = data.results[0].geometry.location;
                 setSelectedLocation({
                     latitude: parseFloat(location.lat),
-                    longitude: parseFloat(location.lon)
+                    longitude: parseFloat(location.lng)
                 });
+            } else {
+                throw new Error('Address not found');
             }
         } catch (error) {
             console.error('Lỗi khi tìm kiếm vị trí:', error);
@@ -206,6 +206,8 @@ const CustomerMap = ({ navigation }) => {
                     style={{ flex: 1 }}
                     region={region}
                     provider={PROVIDER_GOOGLE}
+                    showsMyLocationButton={true}
+                    showsUserLocation={true}
                 >
                     {nearbySubmissions.map((li, index) => (
                         <Marker

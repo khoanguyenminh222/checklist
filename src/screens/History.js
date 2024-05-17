@@ -38,9 +38,6 @@ const History = ({ navigation }) => {
   }, [navigation]);
 
   const fetchListSubmit = async (isRefreshing = false) => {
-    console.log(page)
-    console.log(loading)
-    console.log("end",endOfList)
     try {
       setLoading(true);
       const response = await axios.get(`${domain}${listSubmitRoute}?page=${isRefreshing ? 1 : page}&pageSize=${pageSize}&search=${search}&role=${user.role}&userId=${user._id}`); // lấy ra danh sánh listSubmit

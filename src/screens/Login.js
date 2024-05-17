@@ -1,14 +1,13 @@
 // LoginScreen.js
 import React, { useState, useEffect } from 'react';
-import { Button, TextInput, Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Button, TextInput, Text, View, SafeAreaView, Pressable, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons'
-import Checkbox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '../UserProvider';
 import axios from 'axios';
 import { domain, userRoute } from '../api/BaseURL';
-import ToastMesssage from '../components/ToastMessage';
+import Toast from 'react-native-toast-message';
 
 const Login = ({ navigation }) => {
   const { updateUser } = useUser();
@@ -50,21 +49,30 @@ const Login = ({ navigation }) => {
     // Thực hiện xác thực đăng nhập, sau đó lưu thông tin người dùng vào Context
     try {
       if (!username) {
-        setMessage('Vui lòng điền username');
-        setToastKey(prevKey => prevKey + 1);
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi đăng nhập',
+          text2: 'Vui lòng điền username',
+        });
+        return;
       }
       if (!password) {
-        setMessage('Vui lòng điền password');
-        setToastKey(prevKey => prevKey + 1);
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi đăng nhập',
+          text2: 'Vui lòng điền password',
+        });
+        return;
       }
       const userData = { username, password }; // Thông tin người dùng
       const response = await axios.post(`${domain}${userRoute}/login`, userData);
       if (response.status >= 200 && response.status < 300) {
         let user = response.data.user;
         updateUser(user);
-        setMessage('Đăng nhập thành công');
-        setToastKey(prevKey => prevKey + 1);
-
+        Toast.show({
+          type: 'success',
+          text1: 'Đăng nhập thành công',
+        });
         if (isChecked) {
           // Nếu người dùng đã chọn "Remember", lưu thông tin đăng nhập vào AsyncStorage
           await AsyncStorage.setItem('username', username);
@@ -78,15 +86,25 @@ const Login = ({ navigation }) => {
         }
       } else {
         console.error('Submission failed with status:', response.status);
-        setMessage('Sai username hoặc password');
-        setToastKey(prevKey => prevKey + 1);
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi đăng nhập',
+          text2: 'Sai username hoặc password',
+        });
       }
     } catch (error) {
       if (error.response.status == 401) {
-        setMessage('Sai username hoặc password');
-        setToastKey(prevKey => prevKey + 1);
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi đăng nhập',
+          text2: 'Sai username hoặc password',
+        });
       } else {
-        console.log(error)
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi đăng nhập',
+          text2: error.message,
+        });
       }
     }
 
@@ -94,32 +112,38 @@ const Login = ({ navigation }) => {
   const toggleSecureEntry = () => {
     setSecureTextEntry(!secureTextEntry); // Đảo ngược trạng thái hiển thị mật khẩu
   };
+  const toggleCheckbox = () => {
+    setChecked(!isChecked);
+  };
   return (
     <SafeAreaView className="flex-1 justify-center items-center bg-white">
     <StatusBar style="dark" />
       <View className="w-10/12">
-        <Text className="text-2xl font-bold mb-5 text-center">Đăng nhập</Text>
-        <TextInput className="h-14 border border-gray-300 rounded mb-3 px-2" placeholder="Tên nhân viên" value={username} onChangeText={setUsername} />
+        <Text className="text-2xl font-bold mb-5 text-center select-none">Đăng nhập</Text>
+        <TextInput className="h-14 border border-gray-300 rounded mb-3 px-2 select-none" placeholder="Tên nhân viên" value={username} onChangeText={setUsername} />
         <View className="flex flex-row items-center mb-3">
-          <TextInput className="flex-1 h-14 border border-gray-300 rounded px-2" placeholder="Mật khẩu" value={password} onChangeText={setPassword} secureTextEntry={secureTextEntry} />
+          <TextInput className="flex-1 h-14 border border-gray-300 rounded px-2 select-none" placeholder="Mật khẩu" value={password} onChangeText={setPassword} secureTextEntry={secureTextEntry} />
           <TouchableOpacity className=" absolute right-2 items-center" onPress={toggleSecureEntry}>
             <Ionicons name={secureTextEntry ? 'eye-off-outline' : 'eye-outline'} size={22} color="black" />
           </TouchableOpacity>
         </View>
         <View className="flex flex-row items-center mb-3">
-          <Checkbox
-            className="my-2 mr-2"
-            value={isChecked}
-            onValueChange={setChecked}
-            color={isChecked ? 'blue' : undefined}
-          />
-          <Text className="text-sm">Remember</Text>
+          <TouchableOpacity
+            className={`h-6 w-6 rounded-sm border-2 border-gray-400 justify-center items-center mr-2 ${isChecked ? 'bg-blue-500' : 'bg-white'}`}
+            onPress={toggleCheckbox}
+            accessibilityRole="checkbox"
+            aria-checked={isChecked}
+          >
+            {isChecked && <Ionicons name="checkmark" size={16} color="white" />}
+          </TouchableOpacity>
+          <Text className="select-none">Remember</Text>
         </View>
+
         <TouchableOpacity className="bg-blue-500 p-3 rounded-md items-center" onPress={handleLogin}>
-          <Text className="text-white text-base font-bold">Đăng nhập</Text>
+          <Text className="text-white text-base font-bold select-none">Đăng nhập</Text>
         </TouchableOpacity>
-        {message && <ToastMesssage message={message} key={toastKey} time={1500} />}
       </View>
+      <Toast />
     </SafeAreaView>
   );
 };

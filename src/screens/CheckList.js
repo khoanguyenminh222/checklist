@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, TouchableOpacity, Image, Alert } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, Button, ScrollView, RefreshControl, Pressable, TouchableOpacity, Image, Alert } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import DropdownComponent from '../components/DropdownComponent';
@@ -8,7 +8,7 @@ import Header from '../components/Header';
 import { useUser } from '../UserProvider';
 import { addressRoute, checklistRoute, domain, listSubmitRoute } from '../api/BaseURL';
 import axios from 'axios';
-import ToastMesssage from '../components/ToastMessage';
+import Toast from 'react-native-toast-message';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ImagePickerComponent from '../components/ImagePickerComponent';
 import LocationComponent from '../components/LocationComponent';
@@ -141,6 +141,11 @@ const CheckList = ({ navigation }) => {
             }
         } catch (error) {
             console.error('Error fetching quan list:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi',
+                text2: error.message,
+              });
         }
     }
 
@@ -185,24 +190,40 @@ const CheckList = ({ navigation }) => {
             // Kiểm tra xem các trường nhập liệu có giá trị null không
             if (!name) {
                 setErrorName('Vui lòng điền tên khách hàng');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng điền tên khách hàng',
+                  });
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorName('');
             }
             if (!selectedQuan) {
                 setErrorQuan('Vui lòng chọn quận');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng chọn quận',
+                  });
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorQuan('');
             }
             if (!selectedPhuong) {
                 setErrorPhuong('Vui lòng chọn phường');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng chọn phường',
+                  });
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorPhuong('');
             }
             if (!phoneNumber) {
                 setErrorPhoneNumber('Vui lòng điền số điện thoại');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng điền số điện thoại',
+                  });
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorPhoneNumber('')
@@ -210,36 +231,60 @@ const CheckList = ({ navigation }) => {
             // Kiểm tra xem số điện thoại có hợp lệ không
             if (!validator.isMobilePhone(phoneNumber, 'vi-VN')) {
                 setErrorPhoneNumber('Số điện thoại không hợp lệ');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Số điện thoại không hợp lệ',
+                  });
                 return; // Kết thúc hàm nếu số điện thoại không hợp lệ
             } else {
                 setErrorPhoneNumber('')
             }
             if (!address) {
                 setErrorAddress('Vui lòng điền địa chỉ');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng điền địa chỉ',
+                  });
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorAddress('')
             }
             if (checkedItems.length === 0) {
                 setMessage('Vui lòng chọn ít nhất một mục công việc');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng chọn ít nhất một mục công việc',
+                  });
                 return;
             } else {
                 setMessage('');
             }
             if (!selectedNetwork) {
                 setMessage('Vui lòng chọn nhà mạng');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng chọn nhà mạng',
+                  });
                 return;
             } else {
                 setMessage('');
             }
             if (!paymentTime) {
                 setErrorPaymentTime('Vui lòng chọn thời gian đã đóng');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Vui lòng chọn thời gian đã đóng',
+                  });
                 return; // Kết thúc hàm nếu có trường nhập liệu không có giá trị
             } else {
                 setErrorPaymentTime('')
             }
             if (!currentLatitude && !currentLongitude) {
                 setErrorLocation('Không thể truy cập vị trí hiện tại');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Không thể truy cập vị trí hiện tại',
+                  });
                 return;
             } else {
                 setErrorLocation('')
@@ -277,6 +322,10 @@ const CheckList = ({ navigation }) => {
             });
             if (response.status >= 200 && response.status < 300) {
                 setMessage("Gửi thông tin thành công")
+                Toast.show({
+                    type: 'success',
+                    text1: 'Gửi thông tin thành công',
+                  });
                 onRefresh()
             } else {
                 console.error('Submission failed with status:', response.status);
@@ -284,6 +333,10 @@ const CheckList = ({ navigation }) => {
         } catch (error) {
             setMessage("Error Submitting")
             console.log(error)
+            Toast.show({
+                type: 'error',
+                text1: error.message,
+              });
         }
         // Thực hiện các thao tác khác như lưu dữ liệu vào cơ sở dữ liệu, gửi dữ liệu đến máy chủ, vv.
     };
@@ -502,16 +555,9 @@ const CheckList = ({ navigation }) => {
                             <Text className='text-white font-bold text-base'>Gửi</Text>
                         </TouchableOpacity>
                     </View>
-                    {errorName && <ToastMesssage message={errorName} time={1500} />}
-                    {errorQuan && <ToastMesssage message={errorQuan} time={1500} />}
-                    {errorPhuong && <ToastMesssage message={errorPhuong} time={1500} />}
-                    {errorPhoneNumber && <ToastMesssage message={errorPhoneNumber} time={1500} />}
-                    {errorAddress && <ToastMesssage message={errorAddress} time={1500} />}
-                    {errorPaymentTime && <ToastMesssage message={errorPaymentTime} time={1500} />}
-                    {errorLocation && <ToastMesssage message={errorLocation} time={1500} />}
-                    {message && <ToastMesssage message={message} time={1500} />}
                 </View>
             </ScrollView>
+            <Toast />
         </SafeAreaView>
     )
 }

@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { UserProvider } from './src/UserProvider';
 
+import "./main.css";
+
 import Login from './src/screens/Login';
 import CheckList from './src/screens/CheckList';
 import WorkList from './src/screens/WorkList';
@@ -132,12 +134,10 @@ const StackNavigator = () => {
 export default function App() {
   const isLoggedIn = false;
   return (
-    <RootSiblingParent>
       <UserProvider>
         <NavigationContainer>
           <StackNavigator />
         </NavigationContainer>
       </UserProvider>
-    </RootSiblingParent>
   );
 }

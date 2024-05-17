@@ -42,10 +42,10 @@ const ImagePickerComponent = ({ setImage }) => {
 
   return (
     <>
-      <TouchableOpacity onPress={takePhoto} className='mt-2 p-2 rounded-sm items-center bg-blue-500'>
+      <TouchableOpacity onPress={takePhoto} className='mt-2 p-2 rounded-sm items-center bg-blue-500 hover:bg-blue-600'>
           <Text className='text-white font-bold'>Chụp ảnh</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={selectImage} className='my-2 p-2 rounded-sm items-center bg-blue-500'>
+        <TouchableOpacity onPress={selectImage} className='my-2 p-2 rounded-sm items-center bg-blue-500 hover:bg-blue-600'>
           <Text className='text-white font-bold'>Chọn ảnh từ thư viện</Text>
         </TouchableOpacity>
     </>

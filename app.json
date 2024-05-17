@@ -23,7 +23,12 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.vnpt.CheckList"
+      "package": "com.vnpt.CheckList",
+      "config":{
+        "googleMaps":{
+          "apiKey": "AIzaSyCfRaZiGPsCmyu1J8HeF028SnrZKpHkIlU"
+        }
+      }
     },
     "plugins": [
       [

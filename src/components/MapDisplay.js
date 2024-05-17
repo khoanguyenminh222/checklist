@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 const MapDisplay = ({ latitude, longitude, isDraggable, handleDragEnd }) => {
     
@@ -14,6 +14,7 @@ const MapDisplay = ({ latitude, longitude, isDraggable, handleDragEnd }) => {
                     latitudeDelta: 0.005,
                     longitudeDelta: 0.005,
                 }}
+                provider={PROVIDER_GOOGLE}
             >
                 <Marker
                     coordinate={{

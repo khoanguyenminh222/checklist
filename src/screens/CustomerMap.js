@@ -4,7 +4,7 @@ import { useUser } from '../UserProvider';
 import { addressRoute, domain, listSubmitRoute } from '../api/BaseURL';
 import Header from '../components/Header';
 import axios from 'axios';
-import MapView, { Marker, Circle  } from 'react-native-maps';
+import MapView, { Marker, Circle, PROVIDER_GOOGLE  } from 'react-native-maps';
 import DropdownComponent from '../components/DropdownComponent';
 
 const CustomerMap = ({ navigation }) => {
@@ -205,6 +205,7 @@ const CustomerMap = ({ navigation }) => {
                 <MapView
                     style={{ flex: 1 }}
                     region={region}
+                    provider={PROVIDER_GOOGLE}
                 >
                     {nearbySubmissions.map((li, index) => (
                         <Marker

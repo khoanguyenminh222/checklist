@@ -16,7 +16,6 @@ import Report from './src/screens/Report';
 import History from './src/screens/History';
 import ListWithExpirationDate from './src/screens/ListWithExpirationDate';
 import CustomerMap from './src/screens/CustomerMap';
-import EditCheckList from './src/screens/EditCheckList';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -128,7 +127,6 @@ const StackNavigator = () => {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="MainAdmin" component={TabNavigatorAdmin} />
       <Stack.Screen name="MainUser" component={TabNavigatorUser} />
-      <Stack.Screen name="EditCheckList" component={EditCheckList} />
     </Stack.Navigator>
   )
 }

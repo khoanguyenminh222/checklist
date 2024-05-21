@@ -358,7 +358,7 @@ const CheckList = ({ navigation }) => {
                     return item;
                 });
                 // Lọc ra các phần tử chỉ còn lại 15 ngày hoặc ít hơn
-                const itemsWith15DaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15 && item.daysLeft >= 0);
+                const itemsWith15DaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15 && item.daysLeft >= 0 && item.process==0);
                 // Điều hướng đến màn hình ListWithExpirationDate và truyền dữ liệu
                 if (itemsWith15DaysLeft.length > 0) {
                     Alert.alert(

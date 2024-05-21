@@ -33,7 +33,7 @@ const ListWithExpirationDate = ({ navigation, route }) => {
                 return item;
             });
             // Lọc ra các phần tử chỉ còn lại 15 ngày hoặc ít hơn
-            const itemDaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15 && item.daysLeft >= 0);
+            const itemDaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15 && item.daysLeft >= 0 && item.process==0);
             setItemsWith15DaysLeft(itemDaysLeft);
         } catch (error) {
             console.log(error)

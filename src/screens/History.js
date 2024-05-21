@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native'
-import React, { useCallback, useState, useEffect, useRef  } from 'react'
+import React, { useCallback, useState, useEffect, useRef } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons'
@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import { useUser } from '../UserProvider';
 import { domain, listSubmitRoute } from '../api/BaseURL';
 import MapDisplay from '../components/MapDisplay';
+import LocationComponent from '../components/LocationComponent';
 
 const History = ({ navigation }) => {
   const { user, isLogin } = useUser();
@@ -18,6 +19,8 @@ const History = ({ navigation }) => {
   const [endOfList, setEndOfList] = useState(false);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [currentLatitude, setCurrentLatitude] = useState(null); // State để lưu trữ vĩ độ
+  const [currentLongitude, setCurrentLongitude] = useState(null); // State để lưu trữ kinh độ
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -54,14 +57,14 @@ const History = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error fetching work list:', error);
-    }finally {
+    } finally {
       setLoading(false);
       if (isRefreshing) {
         setRefreshing(false);
       }
     }
   }
-    
+
 
   useEffect(() => {
     fetchListSubmit(false);
@@ -109,7 +112,18 @@ const History = ({ navigation }) => {
         </View>
       )}
       <Text className="text-lg font-bold mt-3">Vị trí:</Text>
-      <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false}/>
+      <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false} currentLatitude={currentLatitude} currentLongitude={currentLongitude} />
+      {item.process == 1 ?
+
+        <View className="flex flex-row items-center mt-3">
+          <Ionicons name="checkmark-circle-outline" size={22} color="green" />
+          <Text className="text-green-500 text-lg ml-2 capitalize">Đã xử lý</Text>
+        </View>
+        :
+        <View className="flex flex-row items-center mt-3">
+          <Text className="text-red-500 text-lg capitalize">Chưa xử lý</Text>
+        </View>
+      }
     </View>
   );
 
@@ -137,6 +151,13 @@ const History = ({ navigation }) => {
     fetchListSubmit(true);
   }, [debouncedSearch]);
 
+  const handleLocationChange = (latitude, longitude) => {
+    if (latitude && longitude) {
+      setCurrentLatitude(latitude); // Cập nhật vĩ độ
+      setCurrentLongitude(longitude); // Cập nhật kinh độ
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar style="dark" />
@@ -159,6 +180,7 @@ const History = ({ navigation }) => {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
       />
+      <LocationComponent onLocationChange={handleLocationChange} />
     </SafeAreaView>
   )
 }

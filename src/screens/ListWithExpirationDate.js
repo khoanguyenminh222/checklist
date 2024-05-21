@@ -1,39 +1,45 @@
-import { View, Text, SafeAreaView, StatusBar, ScrollView, Image, RefreshControl, TextInput } from 'react-native'
+import { View, Text, SafeAreaView, StatusBar, ScrollView, Image, RefreshControl, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useCallback, useState, useEffect } from 'react'
 import axios from 'axios';
 import Header from '../components/Header'
 import MapDisplay from '../components/MapDisplay';
 import { useUser } from '../UserProvider';
 import { domain, listSubmitRoute } from '../api/BaseURL';
+import LocationComponent from '../components/LocationComponent';
+import Toast from 'react-native-toast-message';
+import { Ionicons } from '@expo/vector-icons'
 
 const ListWithExpirationDate = ({ navigation, route }) => {
     const { user, isLogin } = useUser();
     const [itemsWith15DaysLeft, setItemsWith15DaysLeft] = useState([]);
     const [search, setSearch] = useState('');
-    useEffect(() => {
-        const fetchItemExpired = async () => {
-            try {
-                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`, {
-                    params: { role: user.role, userId: user._id }
-                });
-                const listSubmits = response.data;
-                // Lấy ra ngày hiện tại
-                const currentDate = new Date();
-                // Tính toán ngày hết hạn chỉ còn lại 15 ngày cho mỗi phần tử trong mảng
-                const dataWithExpirationDate = listSubmits.map(item => {
-                    const expirationDate = new Date(item.dateExpired);
-                    const timeDifference = expirationDate.getTime() - currentDate.getTime();
-                    const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
-                    item.daysLeft = daysDifference;
-                    return item;
-                });
-                // Lọc ra các phần tử chỉ còn lại 15 ngày hoặc ít hơn
-                const itemDaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15 && item.daysLeft >= 0);
-                setItemsWith15DaysLeft(itemDaysLeft);
-            } catch (error) {
-                console.log(error)
-            }
+    const [currentLatitude, setCurrentLatitude] = useState(null); // State để lưu trữ vĩ độ
+    const [currentLongitude, setCurrentLongitude] = useState(null); // State để lưu trữ kinh độ
+
+    const fetchItemExpired = async () => {
+        try {
+            const response = await axios.get(`${domain}${listSubmitRoute}/getAll`, {
+                params: { role: user.role, userId: user._id }
+            });
+            const listSubmits = response.data;
+            // Lấy ra ngày hiện tại
+            const currentDate = new Date();
+            // Tính toán ngày hết hạn chỉ còn lại 15 ngày cho mỗi phần tử trong mảng
+            const dataWithExpirationDate = listSubmits.map(item => {
+                const expirationDate = new Date(item.dateExpired);
+                const timeDifference = expirationDate.getTime() - currentDate.getTime();
+                const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+                item.daysLeft = daysDifference;
+                return item;
+            });
+            // Lọc ra các phần tử chỉ còn lại 15 ngày hoặc ít hơn
+            const itemDaysLeft = dataWithExpirationDate.filter(item => item.daysLeft <= 15 && item.daysLeft >= 0);
+            setItemsWith15DaysLeft(itemDaysLeft);
+        } catch (error) {
+            console.log(error)
         }
+    }
+    useEffect(() => {
         // Nếu không có dữ liệu truyền qua từ route.params, thì fetch dữ liệu mới
         if (route.params && route.params.itemsWith15DaysLeft) {
             setItemsWith15DaysLeft(route.params.itemsWith15DaysLeft);
@@ -63,6 +69,42 @@ const ListWithExpirationDate = ({ navigation, route }) => {
 
     const handleSearchChange = (text) => {
         setSearch(text);
+    };
+    const handleLocationChange = (latitude, longitude) => {
+        if (latitude && longitude) {
+            setCurrentLatitude(latitude); // Cập nhật vĩ độ
+            setCurrentLongitude(longitude); // Cập nhật kinh độ
+        }
+    };
+    const handleEditPress = async (item) => {
+        Alert.alert(
+            'Xác nhận',
+            'Bạn có chắc đã xử lý công việc của khách hàng '+item.customerName,
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                {
+                    text: 'OK',
+                    onPress: async () => {
+                        try {
+                            const response = await axios.put(`${domain}${listSubmitRoute}/${item._id}`, {process:1});
+                            if(response.status>=200 && response.status<300){
+                                Toast.show({
+                                    type: 'success',
+                                    text1: 'Cập nhật thành công',
+                                });
+                                fetchItemExpired();
+                            }
+                        } catch (error) {
+                            console.log(error)
+                        }
+                    }
+                }
+            ]
+        );
+        
     };
     return (
         <SafeAreaView className="flex-1 bg-gray-100">
@@ -123,10 +165,22 @@ const ListWithExpirationDate = ({ navigation, route }) => {
                             </View>
                         )}
                         <Text className="text-lg font-bold mt-3">Vị trí:</Text>
-                        <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false} />
+                        <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false} currentLatitude={currentLatitude} currentLongitude={currentLongitude} />
+                        {item.process==1 ?
+                            <View className="flex flex-row items-center mt-3">
+                                <Ionicons name="checkmark-circle-outline" size={22} color="green" />
+                                <Text className="text-green-500 text-lg ml-2 capitalize">Đã xử lý</Text>
+                            </View>
+                        :
+                            <TouchableOpacity className="bg-blue-500 p-3 rounded-md items-center mt-3" onPress={() => handleEditPress(item)}>
+                                <Text className="text-white text-base font-bold select-none capitalize">Đã xử lý</Text>
+                            </TouchableOpacity>
+                        }
                     </View>
                 ))}
             </ScrollView>
+            <LocationComponent onLocationChange={handleLocationChange} />
+            <Toast />
         </SafeAreaView>
     )
 }

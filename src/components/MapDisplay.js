@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+import { api_key } from '../api/google';
 
-const MapDisplay = ({ latitude, longitude, isDraggable, handleDragEnd }) => {
-    
+const MapDisplay = ({ latitude, longitude, isDraggable, handleDragEnd, currentLatitude, currentLongitude }) => {
     return (
         <View style={styles.container}>
             <MapView
@@ -24,7 +25,35 @@ const MapDisplay = ({ latitude, longitude, isDraggable, handleDragEnd }) => {
                     draggable={isDraggable}
                     onDragEnd={handleDragEnd}
                 />
+                {currentLatitude && currentLongitude && (
+                    <Marker
+                    coordinate={{
+                        latitude: currentLatitude,
+                        longitude: currentLongitude,
+                    }}
+                    title="vị trí hiện tại"
+                    pinColor="blue"
+                    />
+                )}
+                {currentLatitude && currentLongitude && (
+                    
+                    <MapViewDirections 
+                        origin={{
+                            latitude: currentLatitude,
+                            longitude: currentLongitude,
+                        }}
+                        destination={{
+                            latitude: latitude,
+                            longitude: longitude,
+                        }}
+                        apikey={api_key}
+                        strokeWidth={3}
+                        strokeColor="hotpink"
+                    />
+                )}
+
             </MapView>
+
         </View>
     );
 };

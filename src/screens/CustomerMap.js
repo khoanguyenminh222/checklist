@@ -6,6 +6,8 @@ import Header from '../components/Header';
 import axios from 'axios';
 import MapView, { Marker, Circle, PROVIDER_GOOGLE  } from 'react-native-maps';
 import DropdownComponent from '../components/DropdownComponent';
+import Toast from 'react-native-toast-message';
+import { api_key } from '../api/google';
 
 const CustomerMap = ({ navigation }) => {
     const { user, isLogin } = useUser();
@@ -100,14 +102,20 @@ const CustomerMap = ({ navigation }) => {
 
     // Hàm xử lý khi nhấn nút để tìm vị trí
     const handleFindLocation = async () => {
-        
+
+        if(!selectedQuan || !selectedPhuong){
+            Toast.show({
+                type: 'error',
+                text1: 'Yêu cầu chọn quận, phường',
+              });
+            return;
+        }
         try {
             const addressQuan = await axios.get(`${domain}${addressRoute}/quan/${selectedQuan}`)
             const addressPhuong = await axios.get(`${domain}${addressRoute}/phuong/getById/${selectedPhuong}`)
             const address = `${addressPhuong.data.tenPhuong}, ${addressQuan.data.tenQuan}`;
 
-            const apiKey = "AIzaSyBgQ4XPNKZq6YYenbBEsBbSDCIHTmT7S-A";
-            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${api_key}`);
             const data = await response.json();
             if (data.results.length > 0) {
                 const location = data.results[0].geometry.location;
@@ -237,7 +245,7 @@ const CustomerMap = ({ navigation }) => {
                     
                 </MapView>
             </View>
-
+            <Toast />
         </SafeAreaView>
     )
 }

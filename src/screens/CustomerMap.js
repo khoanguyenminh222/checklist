@@ -23,9 +23,7 @@ const CustomerMap = ({ navigation }) => {
     useEffect(() => {
         const fetchList = async () => {
             try {
-                const response = await axios.get(`${domain}${listSubmitRoute}/getAll`, {
-                    params: { role: user.role, userId: user._id }
-                })
+                const response = await axios.get(`${domain}${listSubmitRoute}/getAllCustomer`)
                 setListSubmit(response.data)
             } catch (error) {
                 console.log(error)
@@ -141,18 +139,48 @@ const CustomerMap = ({ navigation }) => {
             filterNearbySubmissions();
         }
     }, [selectedLocation]);
-    const filterNearbySubmissions = () => {
+    const filterNearbySubmissions = async () => {
         if (selectedLocation) {
-            const nearby = listSubmit.filter(item => {
-                const distance = calculateDistance(
-                    selectedLocation.latitude,
-                    selectedLocation.longitude,
-                    item.location.latitude,
-                    item.location.longitude
-                );
-                return distance <= 0.5; // 0.1 km = 100 meters
-            });
-            setNearbySubmissions(nearby);
+            const nearby = await Promise.all(
+                listSubmit.map(async (item) => {
+                    const distance = calculateDistance(
+                        selectedLocation.latitude,
+                        selectedLocation.longitude,
+                        item.location.latitude,
+                        item.location.longitude
+                    );
+                    if (distance <= 0.5) {
+                        try {
+                            // Lấy thông tin về quận từ API
+                            const quanResponse = await axios.get(`${domain}${addressRoute}/quan/${item.idQuan}`);
+                            const quanName = quanResponse.data.tenQuan; // Giả sử bạn có trường name trong mô hình quận
+    
+                            // Lấy thông tin về phường từ API
+                            const phuongResponse = await axios.get(`${domain}${addressRoute}/phuong/getById/${item.idPhuong}`);
+                            const phuongName = phuongResponse.data.tenPhuong; // Giả sử bạn có trường name trong mô hình phường
+    
+                            // Lấy thông tin về phố từ API
+                            const phoResponse = await axios.get(`${domain}${addressRoute}/pho/getById/${item.idPho}`);
+                            const phoName = phoResponse.data.tenPho; // Giả sử bạn có trường name trong mô hình phố
+    
+                            // Thêm tên của quận, phường và phố vào mục
+                            return {
+                                ...item,
+                                tenQuan: quanName,
+                                tenPhuong: phuongName,
+                                tenPho: phoName
+                            };
+                        } catch (error) {
+                            console.error('Lỗi khi lấy thông tin địa chỉ:', error);
+                            return null;
+                        }
+                    }
+                    return null;
+                })
+            );
+            const filteredNearby = nearby.filter(Boolean); // Lọc bỏ các mục null
+            console.log(filteredNearby);
+            setNearbySubmissions(filteredNearby);
         }
     };
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -221,7 +249,8 @@ const CustomerMap = ({ navigation }) => {
                         <Marker
                             key={index}
                             coordinate={{ latitude: li.location.latitude, longitude: li.location.longitude }}
-                            title={li.customerName}
+                            title={`Khách hàng: ${li.customerName} của ${li.userId.username}`}
+                            description={`${li.address}, ${li.tenPho}, ${li.tenPhuong}, ${li.tenQuan}`}
                             pinColor="green"
                         />
                     ))}

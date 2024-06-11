@@ -8,6 +8,7 @@ import MapView, { Marker, Circle, PROVIDER_GOOGLE  } from 'react-native-maps';
 import DropdownComponent from '../components/DropdownComponent';
 import Toast from 'react-native-toast-message';
 import { api_key } from '../api/google';
+import * as Location from 'expo-location';
 
 const CustomerMap = ({ navigation }) => {
     const { user, isLogin } = useUser();
@@ -128,6 +129,29 @@ const CustomerMap = ({ navigation }) => {
             console.error('Lỗi khi tìm kiếm vị trí:', error);
         }
     };
+
+    useEffect(() => {
+        const getLocation = async () => {
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    setErrorMsg('Quyền truy cập vị trí bị từ chối');
+                    return;
+                }
+                let location = await Location.getCurrentPositionAsync({});
+                setSelectedLocation({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                });
+            } catch (error) {
+                setErrorMsg('Yêu cầu vị trí không thành công. Vui lòng kiểm tra cài đặt của thiết bị.');
+            }
+        };
+        getLocation();
+
+        
+    }, [])
+
     useEffect(() => {
         if (selectedLocation) {
             setRegion({
@@ -138,7 +162,7 @@ const CustomerMap = ({ navigation }) => {
             });
             filterNearbySubmissions();
         }
-    }, [selectedLocation]);
+    }, [selectedLocation, listSubmit]);
     const filterNearbySubmissions = async () => {
         if (selectedLocation) {
             const nearby = await Promise.all(
@@ -179,7 +203,6 @@ const CustomerMap = ({ navigation }) => {
                 })
             );
             const filteredNearby = nearby.filter(Boolean); // Lọc bỏ các mục null
-
             setNearbySubmissions(filteredNearby);
         }
     };

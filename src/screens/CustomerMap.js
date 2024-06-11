@@ -179,7 +179,7 @@ const CustomerMap = ({ navigation }) => {
                 })
             );
             const filteredNearby = nearby.filter(Boolean); // Lọc bỏ các mục null
-            console.log(filteredNearby);
+
             setNearbySubmissions(filteredNearby);
         }
     };

@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vnpt.CheckList",
+      "bundleIdentifier": "com.vnpt.khaosatkh",
       "config": {
         "googleMapsApiKey": "AIzaSyAP7iZN-XbFBA0GXpySNDsiP15TVCSoYO0"
       }

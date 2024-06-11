@@ -165,7 +165,7 @@ const ListWithExpirationDate = ({ navigation, route }) => {
                             </View>
                         )}
                         <Text className="text-lg font-bold mt-3">Vị trí:</Text>
-                        <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false} currentLatitude={currentLatitude} currentLongitude={currentLongitude} />
+                        <MapDisplay latitude={item.location.latitude} longitude={item.location.longitude} isDraggable={false} currentLatitude={currentLatitude} currentLongitude={currentLongitude} isButton={true}/>
                         {item.process==1 ?
                             <View className="flex flex-row items-center mt-3">
                                 <Ionicons name="checkmark-circle-outline" size={22} color="green" />

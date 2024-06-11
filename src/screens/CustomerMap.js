@@ -264,7 +264,7 @@ const CustomerMap = ({ navigation }) => {
                 <MapView
                     style={{ flex: 1 }}
                     region={region}
-                    provider={PROVIDER_GOOGLE}
+                    provider={MapView.PROVIDER_GOOGLE}
                     showsMyLocationButton={true}
                     showsUserLocation={true}
                 >
